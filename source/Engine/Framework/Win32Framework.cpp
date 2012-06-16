@@ -1,5 +1,6 @@
 
 #include "Win32Framework.h"
+#include <gl\glu.h>
 
 Win32Framework* gFramework = NULL;
 
@@ -138,6 +139,36 @@ bool Win32Framework::Init()
 		return false;
 	}
 
+	ShowWindow( mWindow, SW_SHOW );						// Show The Window
+	SetForegroundWindow( mWindow );						// Slightly Higher Priority
+	SetFocus( mWindow );									// Sets Keyboard Focus To The Window
+
+	// todo: amcgee - turn this into a function to resize the screen
+	glViewport(0,0,640,480);						// Reset The Current Viewport
+
+	glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
+	glLoadIdentity();									// Reset The Projection Matrix
+
+	// Calculate The Aspect Ratio Of The Window
+	gluPerspective(45.0f,(GLfloat)640/(GLfloat)480,0.1f,100.0f);
+
+	glMatrixMode(GL_MODELVIEW);							// Select The Modelview Matrix
+	glLoadIdentity();
+
+	glShadeModel(GL_SMOOTH);							// Enable Smooth Shading
+	glClearColor(0.0f, 0.0f, 0.0f, 0.5f);				// Black Background
+	glClearDepth(1.0f);									// Depth Buffer Setup
+	glEnable(GL_DEPTH_TEST);							// Enables Depth Testing
+	glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
+	/*
+	if ( !InitGL() )									// Initialize Our Newly Created GL Window
+	{
+		Destroy();
+		MessageBox( NULL, L"Initialization of OpenGL failed.", L"Error", MB_OK|MB_ICONEXCLAMATION );
+		return false;
+	}
+	*/
 	return true;
 }
 
@@ -189,5 +220,7 @@ LRESULT CALLBACK Win32Framework::WindowsMessageProc( HWND hWnd, UINT uMsg, WPARA
 
 void Win32Framework::Update()
 {
-	// do nothing
+	glClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT );
+	glLoadIdentity();
+	SwapBuffers( mDeviceContext );
 }
