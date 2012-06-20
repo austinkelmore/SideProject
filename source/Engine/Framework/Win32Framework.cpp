@@ -12,6 +12,7 @@ IFramework* CreateFramework()
 }
 
 Win32Framework::Win32Framework()
+	: IFramework()
 {
 	mAppInstance = NULL;
 	mWindow = NULL;
@@ -65,7 +66,7 @@ bool Win32Framework::Init()
 	mWindowRect.top=(long)0;			// Set Top Value To 0
 	mWindowRect.bottom=(long)480;		// Set Bottom Value To Requested Height
 
-	AdjustWindowRect( &mWindowRect, WS_OVERLAPPEDWINDOW, FALSE );
+	AdjustWindowRectEx( &mWindowRect, WS_OVERLAPPEDWINDOW, FALSE, WS_EX_APPWINDOW|WS_EX_WINDOWEDGE );
 
 	if ( !( mWindow = CreateWindow( L"SideProject",
 									L"Did this work?",
@@ -215,11 +216,36 @@ void Win32Framework::Destroy()
 
 LRESULT CALLBACK Win32Framework::WindowsMessageProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
+	switch( uMsg )
+	{
+	case WM_CLOSE:
+		{
+			PostQuitMessage( 0 );
+			return 0;
+		}
+	}
+
 	return DefWindowProc( hWnd, uMsg, wParam, lParam );
 }
 
 void Win32Framework::Update()
 {
+	// handle the messages
+	MSG msg;
+	if ( PeekMessage( &msg, NULL, 0, PM_NOREMOVE, PM_REMOVE ) )
+	{
+		if ( msg.message == WM_QUIT )
+		{
+			mExitFramework = true;
+		}
+		else
+		{
+			TranslateMessage(&msg);				// Translate The Message
+			DispatchMessage(&msg);				// Dispatch The Message
+		}
+	}
+
+	// draw the screen
 	glClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT );
 	glLoadIdentity();
 	SwapBuffers( mDeviceContext );

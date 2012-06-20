@@ -4,6 +4,12 @@
     <Filter Include="Engine">
       <UniqueIdentifier>{41a5ad65-9890-42e6-9558-388a1083d28a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\jsoncpp">
+      <UniqueIdentifier>{83885e2e-f32b-4b07-95d2-a5f2325b5132}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\nowide">
+      <UniqueIdentifier>{6bc8cd64-3076-4c75-ae32-d2b4c4007d2f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\Engine\Framework\Win32Framework.h">
@@ -18,6 +24,33 @@
     <ClInclude Include="..\..\source\Engine\IFramework.h">
       <Filter>Engine</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\source\Engine\Input\Win32Input.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\Config\JSONConfig.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\jsoncpp\json\json.h">
+      <Filter>Engine\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\jsoncpp\json\json-forwards.h">
+      <Filter>Engine\jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\nowide\nowide\config.h">
+      <Filter>Engine\nowide</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\nowide\nowide\convert.h">
+      <Filter>Engine\nowide</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\nowide\nowide\cstdio.h">
+      <Filter>Engine\nowide</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\nowide\nowide\fstream.h">
+      <Filter>Engine\nowide</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\nowide\nowide\streambuf.h">
+      <Filter>Engine\nowide</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\Engine\Framework\Win32Framework.cpp">
@@ -26,6 +59,21 @@
     <ClCompile Include="..\..\source\main.cpp" />
     <ClCompile Include="..\..\source\Engine\Graphics\OpenGLGraphicsDriver.cpp">
       <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\Input\Win32Input.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\Config\JSONConfig.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\jsoncpp\jsoncpp.cpp">
+      <Filter>Engine\jsoncpp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\nowide\src\convert.cpp">
+      <Filter>Engine\nowide</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\nowide\src\streambuf.cpp">
+      <Filter>Engine\nowide</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

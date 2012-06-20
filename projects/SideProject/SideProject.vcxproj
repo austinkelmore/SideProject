@@ -38,10 +38,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)..\..\dist\</OutDir>
+    <IntDir>$(SolutionDir)..\..\intermediate\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)..\..\dist\</OutDir>
+    <IntDir>$(SolutionDir)..\..\intermediate\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -50,6 +56,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\external\nowide;$(SolutionDir)..\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -66,6 +74,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\external\nowide;$(SolutionDir)..\..\external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -75,14 +84,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\external\jsoncpp\json\json-forwards.h" />
+    <ClInclude Include="..\..\external\jsoncpp\json\json.h" />
+    <ClInclude Include="..\..\external\nowide\nowide\config.h" />
+    <ClInclude Include="..\..\external\nowide\nowide\convert.h" />
+    <ClInclude Include="..\..\external\nowide\nowide\cstdio.h" />
+    <ClInclude Include="..\..\external\nowide\nowide\fstream.h" />
+    <ClInclude Include="..\..\external\nowide\nowide\streambuf.h" />
+    <ClInclude Include="..\..\source\Engine\Config\JSONConfig.h" />
     <ClInclude Include="..\..\source\Engine\Framework\Win32Framework.h" />
     <ClInclude Include="..\..\source\Engine\Graphics\OpenGLGraphicsDriver.h" />
     <ClInclude Include="..\..\source\Engine\IFramework.h" />
     <ClInclude Include="..\..\source\Engine\IGraphicsDriver.h" />
+    <ClInclude Include="..\..\source\Engine\Input\Win32Input.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\external\jsoncpp\jsoncpp.cpp" />
+    <ClCompile Include="..\..\external\nowide\src\convert.cpp" />
+    <ClCompile Include="..\..\external\nowide\src\streambuf.cpp" />
+    <ClCompile Include="..\..\source\Engine\Config\JSONConfig.cpp" />
     <ClCompile Include="..\..\source\Engine\Framework\Win32Framework.cpp" />
     <ClCompile Include="..\..\source\Engine\Graphics\OpenGLGraphicsDriver.cpp" />
+    <ClCompile Include="..\..\source\Engine\Input\Win32Input.cpp" />
     <ClCompile Include="..\..\source\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
