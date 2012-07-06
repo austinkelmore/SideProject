@@ -23,6 +23,7 @@ Win32Framework::Win32Framework()
 Win32Framework::~Win32Framework()
 {
 	Destroy();
+	gFramework = NULL;
 }
 
 bool Win32Framework::Init()

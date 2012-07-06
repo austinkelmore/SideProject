@@ -4,10 +4,13 @@
     <Filter Include="Engine">
       <UniqueIdentifier>{41a5ad65-9890-42e6-9558-388a1083d28a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\jsoncpp">
+    <Filter Include="external">
+      <UniqueIdentifier>{5e0b74d8-e674-4060-affd-2ab586d7b688}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\jsoncpp">
       <UniqueIdentifier>{83885e2e-f32b-4b07-95d2-a5f2325b5132}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\nowide">
+    <Filter Include="external\nowide">
       <UniqueIdentifier>{6bc8cd64-3076-4c75-ae32-d2b4c4007d2f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -31,25 +34,28 @@
       <Filter>Engine</Filter>
     </ClInclude>
     <ClInclude Include="..\..\external\jsoncpp\json\json.h">
-      <Filter>Engine\jsoncpp</Filter>
+      <Filter>external\jsoncpp</Filter>
     </ClInclude>
     <ClInclude Include="..\..\external\jsoncpp\json\json-forwards.h">
-      <Filter>Engine\jsoncpp</Filter>
+      <Filter>external\jsoncpp</Filter>
     </ClInclude>
     <ClInclude Include="..\..\external\nowide\nowide\config.h">
-      <Filter>Engine\nowide</Filter>
+      <Filter>external\nowide</Filter>
     </ClInclude>
     <ClInclude Include="..\..\external\nowide\nowide\convert.h">
-      <Filter>Engine\nowide</Filter>
+      <Filter>external\nowide</Filter>
     </ClInclude>
     <ClInclude Include="..\..\external\nowide\nowide\cstdio.h">
-      <Filter>Engine\nowide</Filter>
+      <Filter>external\nowide</Filter>
     </ClInclude>
     <ClInclude Include="..\..\external\nowide\nowide\fstream.h">
-      <Filter>Engine\nowide</Filter>
+      <Filter>external\nowide</Filter>
     </ClInclude>
     <ClInclude Include="..\..\external\nowide\nowide\streambuf.h">
-      <Filter>Engine\nowide</Filter>
+      <Filter>external\nowide</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\Logging\Logging.h">
+      <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -67,13 +73,16 @@
       <Filter>Engine</Filter>
     </ClCompile>
     <ClCompile Include="..\..\external\jsoncpp\jsoncpp.cpp">
-      <Filter>Engine\jsoncpp</Filter>
+      <Filter>external\jsoncpp</Filter>
     </ClCompile>
     <ClCompile Include="..\..\external\nowide\src\convert.cpp">
-      <Filter>Engine\nowide</Filter>
+      <Filter>external\nowide</Filter>
     </ClCompile>
     <ClCompile Include="..\..\external\nowide\src\streambuf.cpp">
-      <Filter>Engine\nowide</Filter>
+      <Filter>external\nowide</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\Logging\Logging.cpp">
+      <Filter>Engine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
