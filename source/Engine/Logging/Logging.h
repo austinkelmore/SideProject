@@ -1,4 +1,8 @@
 
+#pragma once
+
+#include "../Config/JSONConfig.h"
+
 enum LogChannel
 {
 	LOG_UI = 0,
@@ -20,14 +24,19 @@ enum LogTarget
 class Logging
 {
 public:
+	DEFINE_CONFIG(Log)
+		{
+			FlushFrequency = 15;
+		}
+		int FlushFrequency;
+	DEFINE_CONFIG_END(Log)
+
 	Logging();
 	~Logging();
 
 	void Log( LogChannel channel, const char *format, ... );
-	void SetFlushFrequency( const int frequency ) { /*ASSERT(frequency >= 0);*/ mFlushFrequency = frequency; }
 
 private:
-	int mFlushFrequency; // how often we flush the buffer
 	int mCurrentFlushCount; // how long ago we last flushed
 };
 

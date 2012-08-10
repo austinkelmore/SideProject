@@ -1,4 +1,6 @@
 
+#pragma once
+
 #include "../IGraphicsDriver.h"
 
 class OpenGLGraphicsDriver : public IGraphicsDriver

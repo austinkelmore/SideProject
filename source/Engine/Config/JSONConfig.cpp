@@ -9,6 +9,23 @@ JSONConfig* gConfig = NULL;
 
 using std::ifstream;
 
+BaseProps::BaseProps()
+{
+	// todo: amcgee - figure out how to make this not alloc memory in a constructor
+	JSONConfig::GetConfigManager()->AddPropsCallback( this );
+}
+
+JSONConfig* JSONConfig::GetConfigManager()
+{
+	if ( gConfig )
+		return gConfig;
+	else
+	{
+		gConfig = new JSONConfig();
+		return gConfig;
+	}
+}
+
 void JSONConfig::ReadConfig( const std::string &path )
 {
 	// do something
@@ -21,13 +38,54 @@ void JSONConfig::ReadConfig( const std::string &path )
 	{
 		std::cout << "Failed to parse configuration:" << reader.getFormattedErrorMessages();
 	}
-
-	DebugPrintValueStream();
 }
 
 void JSONConfig::DebugPrintValueStream()
 {
 	InternalPrintValue( mRootValue );
+}
+
+void JSONConfig::Initialize()
+{
+	for ( tPropsToDataMap::iterator i = mPropsToPropsDataMap.begin(); i != mPropsToPropsDataMap.end(); ++i )
+	{
+		i->second.propsName = i->first->GetName();
+		i->first->StaticInitProps();
+	}
+
+	// now that we know of all the props, let's hook them up to their values
+	for ( tPropsToDataMap::iterator props = mPropsToPropsDataMap.begin(); props != mPropsToPropsDataMap.end(); ++props )
+	{
+		Json::Value propsValues = mRootValue[props->second.propsName];
+
+		PropsData &data = props->second;
+		for (unsigned i = 0; i < data.configVars.size(); ++i)
+		{
+			ConfigVar &var = data.configVars[i];
+			if ( propsValues.isMember( var.configName ) )
+			{
+				Json::Value configValue = propsValues.get( var.configName, *var.valueInt );
+				*var.valueInt = configValue.asInt();
+			}
+		}
+	}
+}
+
+void JSONConfig::AddPropsCallback( BaseProps *props )
+{
+	mPropsToPropsDataMap[props];
+}
+
+void JSONConfig::AddNewProps( BaseProps *props, const std::string &typeName, void* data, ConfigVarType dataType )
+{
+	ConfigVar temp;
+	temp.configName = typeName;
+	temp.type = dataType;
+
+	// it doesn't matter which we use since it's a union an they're all pointers
+	temp.valueInt = static_cast<int*>( data );
+
+	mPropsToPropsDataMap[props].configVars.push_back( temp );
 }
 
 void JSONConfig::InternalPrintValue( Json::Value &value, const std::string &path/*="."*/ )

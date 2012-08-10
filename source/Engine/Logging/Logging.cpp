@@ -2,17 +2,22 @@
 #include "Logging.h"
 #include <stdio.h>
 #include <nowide/convert.h>
+#include "../Config/JSONConfig.h"
 
 #ifdef WIN32
-#  include <windows.h>
+	#include <windows.h>
 #endif // WIN32
+
+IMPLEMENT_CONFIG( Log, Logging )
+{
+	ADD_PROPS( int, FlushFrequency );
+}
 
 Logging* gLog = NULL;
 
 Logging::Logging()
 {
 	// do nothing
-	mFlushFrequency = 0;
 	mCurrentFlushCount = 0;
 }
 
@@ -39,7 +44,7 @@ void Logging::Log( LogChannel channel, const char *format, ... )
 
 	if ( mCurrentFlushCount == 0 )
 	{
-		mCurrentFlushCount = mFlushFrequency;
+		mCurrentFlushCount = GetProps()->FlushFrequency;
 		fflush(stdout);
 	}
 	else
