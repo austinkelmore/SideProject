@@ -18,8 +18,9 @@ int WINAPI WinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, 
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-#ifdef WIN32
 	// set our current working directory to the one that the exe is in
+	// so that we can access paths correctly rather than where the exe was launched from
+#ifdef WIN32
 	wchar_t szPath[MAX_PATH];
 	::GetModuleFileNameW( NULL, &szPath[0], MAX_PATH );
 
@@ -31,17 +32,17 @@ int WINAPI WinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, 
 	}
 #endif // WIN32
 
-	IFramework* framework = CreateFramework();
-	if ( !framework->Init() )
-		return -1;
-
-	// set up the logging
+	// set up the logging first so that we have a report mechanism in case other things fail
 	gLog = new Logging();
 
 	// gConfig is guaranteed to be initialized because of the static props initializing it
 	gConfig->ReadConfig("test.json");
 	gConfig->Initialize();
 	gConfig->DebugPrintValueStream();
+
+	IFramework* framework = CreateFramework();
+	if ( !framework->Init() )
+		return -1;
 
 	while ( !framework->IsDone() )
 	{

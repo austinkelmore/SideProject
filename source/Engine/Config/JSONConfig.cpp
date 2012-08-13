@@ -54,6 +54,11 @@ void JSONConfig::Initialize()
 	}
 
 	// now that we know of all the props, let's hook them up to their values
+	LinkValuesToVariables();
+}
+
+void JSONConfig::LinkValuesToVariables()
+{
 	for ( tPropsToDataMap::iterator props = mPropsToPropsDataMap.begin(); props != mPropsToPropsDataMap.end(); ++props )
 	{
 		Json::Value propsValues = mRootValue[props->second.propsName];

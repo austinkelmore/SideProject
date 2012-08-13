@@ -3,3 +3,8 @@ This is my side project.  I hope it's awesome.
 Some things to know about this project.
 
 UTF-8 is being used everywhere as much as possible like this article suggests: http://www.utf8everywhere.org/
+
+
+Third party code used:
+jsoncpp
+nowide

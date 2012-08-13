@@ -96,6 +96,7 @@ private:
 	tPropsToDataMap mPropsToPropsDataMap;
 
 	void InternalPrintValue( Json::Value &value, const std::string &path="." );
+	void LinkValuesToVariables();
 };
 
 extern JSONConfig* gConfig;
