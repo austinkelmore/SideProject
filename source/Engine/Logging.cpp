@@ -2,7 +2,7 @@
 #include "Logging.h"
 #include <stdio.h>
 #include <nowide/convert.h>
-#include "../Config/JSONConfig.h"
+#include "JSONConfig.h"
 
 #ifdef WIN32
 	#include <windows.h>

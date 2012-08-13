@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "../Config/JSONConfig.h"
+#include "JSONConfig.h"
 
 enum LogChannel
 {

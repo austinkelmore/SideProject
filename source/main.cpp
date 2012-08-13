@@ -1,8 +1,8 @@
 #include <windows.h>
-#include "Engine/Framework/Win32Framework.h"
+#include "Engine/Win32Framework.h"
 
-#include "Engine/Logging/Logging.h"
-#include "Engine/Config/JSONConfig.h"
+#include "Engine/Logging.h"
+#include "Engine/JSONConfig.h"
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>

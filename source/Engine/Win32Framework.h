@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "../IFramework.h"
+#include "IFramework.h"
 #include <windows.h>
 #include <gl\gl.h>
 

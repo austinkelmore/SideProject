@@ -92,23 +92,23 @@
     <ClInclude Include="..\..\external\nowide\nowide\cstdio.h" />
     <ClInclude Include="..\..\external\nowide\nowide\fstream.h" />
     <ClInclude Include="..\..\external\nowide\nowide\streambuf.h" />
-    <ClInclude Include="..\..\source\Engine\Config\JSONConfig.h" />
-    <ClInclude Include="..\..\source\Engine\Framework\Win32Framework.h" />
-    <ClInclude Include="..\..\source\Engine\Graphics\OpenGLGraphicsDriver.h" />
     <ClInclude Include="..\..\source\Engine\IFramework.h" />
     <ClInclude Include="..\..\source\Engine\IGraphicsDriver.h" />
-    <ClInclude Include="..\..\source\Engine\Input\Win32Input.h" />
-    <ClInclude Include="..\..\source\Engine\Logging\Logging.h" />
+    <ClInclude Include="..\..\source\Engine\JSONConfig.h" />
+    <ClInclude Include="..\..\source\Engine\Logging.h" />
+    <ClInclude Include="..\..\source\Engine\OpenGLGraphicsDriver.h" />
+    <ClInclude Include="..\..\source\Engine\Win32Framework.h" />
+    <ClInclude Include="..\..\source\Engine\Win32Input.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\external\jsoncpp\jsoncpp.cpp" />
     <ClCompile Include="..\..\external\nowide\src\convert.cpp" />
     <ClCompile Include="..\..\external\nowide\src\streambuf.cpp" />
-    <ClCompile Include="..\..\source\Engine\Config\JSONConfig.cpp" />
-    <ClCompile Include="..\..\source\Engine\Framework\Win32Framework.cpp" />
-    <ClCompile Include="..\..\source\Engine\Graphics\OpenGLGraphicsDriver.cpp" />
-    <ClCompile Include="..\..\source\Engine\Input\Win32Input.cpp" />
-    <ClCompile Include="..\..\source\Engine\Logging\Logging.cpp" />
+    <ClCompile Include="..\..\source\Engine\JSONConfig.cpp" />
+    <ClCompile Include="..\..\source\Engine\Logging.cpp" />
+    <ClCompile Include="..\..\source\Engine\OpenGLGraphicsDriver.cpp" />
+    <ClCompile Include="..\..\source\Engine\Win32Framework.cpp" />
+    <ClCompile Include="..\..\source\Engine\Win32Input.cpp" />
     <ClCompile Include="..\..\source\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "../IGraphicsDriver.h"
+#include "IGraphicsDriver.h"
 
 class OpenGLGraphicsDriver : public IGraphicsDriver
 {

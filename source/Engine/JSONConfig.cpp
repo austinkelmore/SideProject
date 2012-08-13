@@ -1,6 +1,6 @@
 
 #include "JSONConfig.h"
-#include "../Logging/Logging.h"
+#include "Logging.h"
 #include <fstream>
 #include <iostream>
 #include <algorithm>

@@ -15,24 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\source\Engine\Framework\Win32Framework.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\Engine\Graphics\OpenGLGraphicsDriver.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\Engine\IGraphicsDriver.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\Engine\IFramework.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\Engine\Input\Win32Input.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\Engine\Config\JSONConfig.h">
-      <Filter>Engine</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\external\jsoncpp\json\json.h">
       <Filter>external\jsoncpp</Filter>
     </ClInclude>
@@ -54,24 +36,30 @@
     <ClInclude Include="..\..\external\nowide\nowide\streambuf.h">
       <Filter>external\nowide</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\Engine\Logging\Logging.h">
+    <ClInclude Include="..\..\source\Engine\IFramework.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\IGraphicsDriver.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\JSONConfig.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\Logging.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\OpenGLGraphicsDriver.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\Win32Framework.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\Win32Input.h">
       <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\source\Engine\Framework\Win32Framework.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\main.cpp" />
-    <ClCompile Include="..\..\source\Engine\Graphics\OpenGLGraphicsDriver.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\Engine\Input\Win32Input.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\Engine\Config\JSONConfig.cpp">
-      <Filter>Engine</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\external\jsoncpp\jsoncpp.cpp">
       <Filter>external\jsoncpp</Filter>
     </ClCompile>
@@ -81,7 +69,19 @@
     <ClCompile Include="..\..\external\nowide\src\streambuf.cpp">
       <Filter>external\nowide</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\Engine\Logging\Logging.cpp">
+    <ClCompile Include="..\..\source\Engine\JSONConfig.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\Logging.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\OpenGLGraphicsDriver.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\Win32Framework.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\Win32Input.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
   </ItemGroup>
