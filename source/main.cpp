@@ -36,7 +36,7 @@ int WINAPI WinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, 
 	gLog = new Logging();
 
 	// gConfig is guaranteed to be initialized because of the static props initializing it
-	gConfig->ReadConfig("test.json");
+	gConfig->ReadConfigFolder("configs");
 	gConfig->Initialize();
 	gConfig->DebugPrintValueStream();
 

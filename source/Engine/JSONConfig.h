@@ -5,6 +5,10 @@
 #include <nowide/convert.h>
 #include <string>
 
+#ifdef WIN32
+	#include <windows.h>
+#endif // WIN32
+
 class BaseProps
 {
 public:
@@ -69,14 +73,26 @@ struct PropsData
 	void (*staticInitCallback)(void);
 };
 
+struct ConfigFileData
+{
+	ConfigFileData() {}
+	ConfigFileData(const std::string name) : configName(name) {}
+
+	std::string configName;
+	Json::Value rootValue;
+};
+
 typedef std::map<BaseProps*, PropsData> tPropsToDataMap;
+typedef std::vector<ConfigFileData> tConfigFileVector;
 
 class JSONConfig
 {
 public:
 	static JSONConfig* GetConfigManager();
 
-	void ReadConfig( const std::string &path );
+	JSONConfig();
+
+	void ReadConfigFolder( const std::string &folderPath );
 
 	void DebugPrintValueStream();
 
@@ -92,8 +108,11 @@ public:
 	template <> ConfigVarType GetType<std::string>() { return CONFIGVAR_String; }
 
 private:
-	Json::Value mRootValue;
+	tConfigFileVector mConfigFiles;
 	tPropsToDataMap mPropsToPropsDataMap;
+#ifdef WIN32
+	HANDLE mFolderChangeNotification;
+#endif // WIN32
 
 	void InternalPrintValue( Json::Value &value, const std::string &path="." );
 	void LinkValuesToVariables();

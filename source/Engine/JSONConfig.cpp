@@ -5,6 +5,13 @@
 #include <iostream>
 #include <algorithm>
 
+#ifdef WIN32
+	#include <windows.h>
+	#include <stdlib.h>
+	#include <stdio.h>
+	#include <tchar.h>
+#endif // WIN32
+
 JSONConfig* gConfig = NULL;
 
 using std::ifstream;
@@ -26,23 +33,58 @@ JSONConfig* JSONConfig::GetConfigManager()
 	}
 }
 
-void JSONConfig::ReadConfig( const std::string &path )
+JSONConfig::JSONConfig()
 {
-	// do something
-	Json::Reader reader;
+	mFolderChangeNotification = NULL;
+}
 
-	std::ifstream configFile( path, ifstream::in );
-	bool successfull = reader.parse( configFile, mRootValue );
+void JSONConfig::ReadConfigFolder( const std::string &folderPath )
+{
+	// hook up the ability to monitor the file for changes
+#ifdef WIN32
+	DWORD flags = FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_FILE_NAME;
+	mFolderChangeNotification = FindFirstChangeNotificationW( nowide::convert(folderPath).c_str(), false, flags );
 
-	if ( !successfull )
+	WIN32_FIND_DATA findFileData;
+	HANDLE findHandle;
+
+	// filter only the JSON files
+	std::string name( folderPath );
+	name += "\\*.json";
+
+	// get our first file
+	findHandle = FindFirstFileW( nowide::convert(name).c_str(), &findFileData );
+	if ( findHandle != INVALID_HANDLE_VALUE )
 	{
-		std::cout << "Failed to parse configuration:" << reader.getFormattedErrorMessages();
+		// keep going until we run out of files
+		do 
+		{
+			std::string filePath( folderPath );
+			filePath += '\\';
+			filePath += nowide::convert(findFileData.cFileName);
+
+			Json::Reader reader;
+
+			mConfigFiles.push_back( filePath );
+			std::ifstream configFile( filePath, ifstream::in );
+			bool successful = reader.parse( configFile, mConfigFiles.back().rootValue );
+
+			if (!successful)
+				gLog->Log( LOG_Config, "Failed to parse configuration: %s\n", reader.getFormattedErrorMessages() );
+		} while( FindNextFileW( findHandle, &findFileData ) != 0 );
+
+		FindClose( findHandle );
 	}
+#endif // WIN32
 }
 
 void JSONConfig::DebugPrintValueStream()
 {
-	InternalPrintValue( mRootValue );
+	for ( tConfigFileVector::iterator configs = mConfigFiles.begin(); configs != mConfigFiles.end(); ++configs )
+	{
+		gLog->Log( LOG_Config, "Config File: %s\n", configs->configName.c_str() );
+		InternalPrintValue( configs->rootValue );
+	}
 }
 
 void JSONConfig::Initialize()
@@ -61,16 +103,20 @@ void JSONConfig::LinkValuesToVariables()
 {
 	for ( tPropsToDataMap::iterator props = mPropsToPropsDataMap.begin(); props != mPropsToPropsDataMap.end(); ++props )
 	{
-		Json::Value propsValues = mRootValue[props->second.propsName];
-
-		PropsData &data = props->second;
-		for (unsigned i = 0; i < data.configVars.size(); ++i)
+		for ( tConfigFileVector::iterator configs = mConfigFiles.begin(); configs != mConfigFiles.end(); ++configs )
 		{
-			ConfigVar &var = data.configVars[i];
-			if ( propsValues.isMember( var.configName ) )
+			Json::Value propsValues = configs->rootValue[props->second.propsName];
+
+			PropsData &data = props->second;
+			for (unsigned i = 0; i < data.configVars.size(); ++i)
 			{
-				Json::Value configValue = propsValues.get( var.configName, *var.valueInt );
-				*var.valueInt = configValue.asInt();
+				ConfigVar &var = data.configVars[i];
+				if ( propsValues.isMember( var.configName ) )
+				{
+					// todo: amcgee - figure out a good way to handle all of the values
+					Json::Value configValue = propsValues.get( var.configName, *var.valueInt );
+					*var.valueInt = configValue.asInt();
+				}
 			}
 		}
 	}

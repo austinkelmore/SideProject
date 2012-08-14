@@ -12,7 +12,8 @@ enum LogChannel
 	LOG_Input,
 	LOG_FileIO,
 	LOG_Network,
-	LOG_Engine
+	LOG_Engine,
+	LOG_Config
 };
 
 enum LogTarget
