@@ -59,8 +59,9 @@ struct ConfigVar
 	};
 
 	std::string configName;
-
 	ConfigVarType type;
+
+	void AssignValue( const Json::Value &configValue );
 };
 
 typedef std::vector<ConfigVar> ConfigVarList;
@@ -91,10 +92,12 @@ public:
 	static JSONConfig* GetConfigManager();
 
 	JSONConfig();
+	~JSONConfig();
 
 	void ReadConfigFolder( const std::string &folderPath );
+	void CheckForConfigFolderChanges();
 
-	void DebugPrintValueStream();
+	void DebugPrintJSONConfigs();
 
 	void AddNewProps( BaseProps *props, const std::string &typeName, void* data, ConfigVarType dataType );
 	void AddPropsCallback( BaseProps *props );
@@ -110,12 +113,15 @@ public:
 private:
 	tConfigFileVector mConfigFiles;
 	tPropsToDataMap mPropsToPropsDataMap;
+	std::string mFolderPath;
+
 #ifdef WIN32
 	HANDLE mFolderChangeNotification;
 #endif // WIN32
 
 	void InternalPrintValue( Json::Value &value, const std::string &path="." );
 	void LinkValuesToVariables();
+	void ParseConfigs();
 };
 
 extern JSONConfig* gConfig;

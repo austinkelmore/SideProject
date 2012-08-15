@@ -1,6 +1,6 @@
 {
 	"Log" :
 	{
-		"FlushFrequency" : 20
+		"FlushFrequency" : 10
 	}
 }

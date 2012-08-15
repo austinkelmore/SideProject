@@ -22,6 +22,27 @@ BaseProps::BaseProps()
 	JSONConfig::GetConfigManager()->AddPropsCallback( this );
 }
 
+void ConfigVar::AssignValue( const Json::Value &configValue )
+{
+	switch ( type )
+	{
+	case CONFIGVAR_Bool:
+		*valueBool = configValue.get( configName, *valueBool ).asBool(); break;
+	case CONFIGVAR_Int:
+		*valueInt = configValue.get( configName, *valueInt ).asInt(); break;
+	case CONFIGVAR_Float:
+		*valueFloat = configValue.get( configName, *valueFloat ).asFloat(); break;
+	case CONFIGVAR_String:
+		*valueString = configValue.get( configName, *valueString ).asString(); break;
+	case CONFIGVAR_Props:
+		// todo: amcgee - hook up more complicated props here
+		break;
+	default:
+		// ASSERT( false );
+		break;
+	}
+}
+
 JSONConfig* JSONConfig::GetConfigManager()
 {
 	if ( gConfig )
@@ -38,18 +59,38 @@ JSONConfig::JSONConfig()
 	mFolderChangeNotification = NULL;
 }
 
+JSONConfig::~JSONConfig()
+{
+#ifdef WIN32
+	FindCloseChangeNotification( mFolderChangeNotification );
+#endif // WIN32
+}
+
 void JSONConfig::ReadConfigFolder( const std::string &folderPath )
 {
+	mFolderPath = folderPath;
 	// hook up the ability to monitor the file for changes
 #ifdef WIN32
 	DWORD flags = FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_FILE_NAME;
-	mFolderChangeNotification = FindFirstChangeNotificationW( nowide::convert(folderPath).c_str(), false, flags );
+	mFolderChangeNotification = FindFirstChangeNotificationW( nowide::convert(mFolderPath).c_str(), false, flags );
+	if ( mFolderChangeNotification == INVALID_HANDLE_VALUE )
+	{
+		mFolderChangeNotification = NULL;
+		gLog->Log( LOG_Config, "Error trying to watch the configs directory: %d", GetLastError() );
+	}
+#endif // WIN32
 
+	ParseConfigs();
+}
+
+void JSONConfig::ParseConfigs()
+{
+#ifdef WIN32
 	WIN32_FIND_DATA findFileData;
 	HANDLE findHandle;
 
 	// filter only the JSON files
-	std::string name( folderPath );
+	std::string name( mFolderPath );
 	name += "\\*.json";
 
 	// get our first file
@@ -59,7 +100,7 @@ void JSONConfig::ReadConfigFolder( const std::string &folderPath )
 		// keep going until we run out of files
 		do 
 		{
-			std::string filePath( folderPath );
+			std::string filePath( mFolderPath );
 			filePath += '\\';
 			filePath += nowide::convert(findFileData.cFileName);
 
@@ -68,9 +109,10 @@ void JSONConfig::ReadConfigFolder( const std::string &folderPath )
 			mConfigFiles.push_back( filePath );
 			std::ifstream configFile( filePath, ifstream::in );
 			bool successful = reader.parse( configFile, mConfigFiles.back().rootValue );
+			configFile.close();
 
 			if (!successful)
-				gLog->Log( LOG_Config, "Failed to parse configuration: %s\n", reader.getFormattedErrorMessages() );
+				gLog->Log( LOG_Config, "Failed to parse configuration: %s\n", reader.getFormattedErrorMessages().c_str() );
 		} while( FindNextFileW( findHandle, &findFileData ) != 0 );
 
 		FindClose( findHandle );
@@ -78,7 +120,32 @@ void JSONConfig::ReadConfigFolder( const std::string &folderPath )
 #endif // WIN32
 }
 
-void JSONConfig::DebugPrintValueStream()
+void JSONConfig::CheckForConfigFolderChanges()
+{
+#ifdef WIN32
+	// tell this not to wait and just return right away
+	DWORD waitValue = WaitForSingleObject( mFolderChangeNotification, 0 );
+	if ( waitValue == WAIT_OBJECT_0 )
+	{
+		// clear out the configs and then reparse them
+		mConfigFiles.clear();
+		ParseConfigs();
+		LinkValuesToVariables();
+
+		// eat all of the rest of the notifications
+		// some times multiple are sent for the same save operation
+		// we don't need to reparse on them because we JUST did it
+		DWORD waitValue;
+		do 
+		{
+			FindNextChangeNotification( mFolderChangeNotification );
+			waitValue = WaitForSingleObject( mFolderChangeNotification, 0 );
+		} while ( waitValue == WAIT_OBJECT_0 );
+	}
+#endif // WIN32
+}
+
+void JSONConfig::DebugPrintJSONConfigs()
 {
 	for ( tConfigFileVector::iterator configs = mConfigFiles.begin(); configs != mConfigFiles.end(); ++configs )
 	{
@@ -112,11 +179,7 @@ void JSONConfig::LinkValuesToVariables()
 			{
 				ConfigVar &var = data.configVars[i];
 				if ( propsValues.isMember( var.configName ) )
-				{
-					// todo: amcgee - figure out a good way to handle all of the values
-					Json::Value configValue = propsValues.get( var.configName, *var.valueInt );
-					*var.valueInt = configValue.asInt();
-				}
+					var.AssignValue( propsValues );
 			}
 		}
 	}

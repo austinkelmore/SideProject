@@ -38,7 +38,7 @@ int WINAPI WinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, 
 	// gConfig is guaranteed to be initialized because of the static props initializing it
 	gConfig->ReadConfigFolder("configs");
 	gConfig->Initialize();
-	gConfig->DebugPrintValueStream();
+	gConfig->DebugPrintJSONConfigs();
 
 	IFramework* framework = CreateFramework();
 	if ( !framework->Init() )
@@ -47,6 +47,7 @@ int WINAPI WinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, 
 	while ( !framework->IsDone() )
 	{
 		framework->Update();
+		gConfig->CheckForConfigFolderChanges();
 	}
 
 	delete framework;
