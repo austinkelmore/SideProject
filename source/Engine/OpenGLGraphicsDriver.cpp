@@ -1,13 +1,13 @@
 
 #include "OpenGLGraphicsDriver.h"
 
-OpenGLGraphicsDriver* gGraphicsDriver = 0x0;
+OpenGLGraphicsDriver* g_graphics_driver = 0x0;
 
 IGraphicsDriver* CreateGraphicsDriver()
 {
-	//ASSERT( gGraphicsDriver == NULL );
-	gGraphicsDriver = new OpenGLGraphicsDriver();
-	return gGraphicsDriver;
+	//ASSERT( g_graphics_driver == NULL );
+	g_graphics_driver = new OpenGLGraphicsDriver();
+	return g_graphics_driver;
 }
 
 OpenGLGraphicsDriver::OpenGLGraphicsDriver()

@@ -4,7 +4,7 @@
 class IFramework
 {
 public:
-	IFramework() { mExitFramework = false; }
+	IFramework() { _exit_framework = false; }
 	virtual ~IFramework() {}
 
 	// functions that need to be overwritten
@@ -12,8 +12,8 @@ public:
 	virtual void Destroy() = 0;
 	virtual void Update() = 0;
 
-	bool IsDone() { return mExitFramework; }
+	bool IsDone() { return _exit_framework; }
 
 protected:
-	bool mExitFramework;
+	bool _exit_framework;
 };

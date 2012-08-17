@@ -27,9 +27,9 @@ class Logging
 public:
 	DEFINE_CONFIG(Log)
 		{
-			FlushFrequency = 15;
+			Flush_Frequency = 15;
 		}
-		int FlushFrequency;
+		int Flush_Frequency;
 	DEFINE_CONFIG_END(Log)
 
 	Logging();
@@ -38,7 +38,7 @@ public:
 	void Log( LogChannel channel, const char *format, ... );
 
 private:
-	int mCurrentFlushCount; // how long ago we last flushed
+	int _current_flush_count; // how long ago we last flushed
 };
 
-extern Logging* gLog;
+extern Logging* g_log;

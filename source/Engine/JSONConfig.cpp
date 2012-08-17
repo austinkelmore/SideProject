@@ -12,7 +12,7 @@
 	#include <tchar.h>
 #endif // WIN32
 
-JSONConfig* gConfig = NULL;
+JSONConfig* g_config = NULL;
 
 using std::ifstream;
 
@@ -22,18 +22,18 @@ BaseProps::BaseProps()
 	JSONConfig::GetConfigManager()->AddPropsCallback( this );
 }
 
-void ConfigVar::AssignValue( const Json::Value &configValue )
+void ConfigVar::AssignValue( const Json::Value &config_value )
 {
-	switch ( type )
+	switch ( _type )
 	{
 	case CONFIGVAR_Bool:
-		*valueBool = configValue.get( configName, *valueBool ).asBool(); break;
+		*_value_bool = config_value.get( _config_name, *_value_bool ).asBool(); break;
 	case CONFIGVAR_Int:
-		*valueInt = configValue.get( configName, *valueInt ).asInt(); break;
+		*_value_int = config_value.get( _config_name, *_value_int ).asInt(); break;
 	case CONFIGVAR_Float:
-		*valueFloat = configValue.get( configName, *valueFloat ).asFloat(); break;
+		*_value_float = config_value.get( _config_name, *_value_float ).asFloat(); break;
 	case CONFIGVAR_String:
-		*valueString = configValue.get( configName, *valueString ).asString(); break;
+		*_value_string = config_value.get( _config_name, *_value_string ).asString(); break;
 	case CONFIGVAR_Props:
 		// todo: amcgee - hook up more complicated props here
 		break;
@@ -45,38 +45,38 @@ void ConfigVar::AssignValue( const Json::Value &configValue )
 
 JSONConfig* JSONConfig::GetConfigManager()
 {
-	if ( gConfig )
-		return gConfig;
+	if ( g_config )
+		return g_config;
 	else
 	{
-		gConfig = new JSONConfig();
-		return gConfig;
+		g_config = new JSONConfig();
+		return g_config;
 	}
 }
 
 JSONConfig::JSONConfig()
 {
-	mFolderChangeNotification = NULL;
+	_folder_change_notification = NULL;
 }
 
 JSONConfig::~JSONConfig()
 {
 #ifdef WIN32
-	FindCloseChangeNotification( mFolderChangeNotification );
+	FindCloseChangeNotification( _folder_change_notification );
 #endif // WIN32
 }
 
-void JSONConfig::ReadConfigFolder( const std::string &folderPath )
+void JSONConfig::ReadConfigFolder( const std::string &folder_path )
 {
-	mFolderPath = folderPath;
+	_folder_path = folder_path;
 	// hook up the ability to monitor the file for changes
 #ifdef WIN32
 	DWORD flags = FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_FILE_NAME;
-	mFolderChangeNotification = FindFirstChangeNotificationW( nowide::convert(mFolderPath).c_str(), false, flags );
-	if ( mFolderChangeNotification == INVALID_HANDLE_VALUE )
+	_folder_change_notification = FindFirstChangeNotificationW( nowide::convert(_folder_path).c_str(), false, flags );
+	if ( _folder_change_notification == INVALID_HANDLE_VALUE )
 	{
-		mFolderChangeNotification = NULL;
-		gLog->Log( LOG_Config, "Error trying to watch the configs directory: %d", GetLastError() );
+		_folder_change_notification = NULL;
+		g_log->Log( LOG_Config, "Error trying to watch the configs directory: %d", GetLastError() );
 	}
 #endif // WIN32
 
@@ -86,36 +86,36 @@ void JSONConfig::ReadConfigFolder( const std::string &folderPath )
 void JSONConfig::ParseConfigs()
 {
 #ifdef WIN32
-	WIN32_FIND_DATA findFileData;
-	HANDLE findHandle;
+	WIN32_FIND_DATA find_file_data;
+	HANDLE find_handle;
 
 	// filter only the JSON files
-	std::string name( mFolderPath );
+	std::string name( _folder_path );
 	name += "\\*.json";
 
 	// get our first file
-	findHandle = FindFirstFileW( nowide::convert(name).c_str(), &findFileData );
-	if ( findHandle != INVALID_HANDLE_VALUE )
+	find_handle = FindFirstFileW( nowide::convert(name).c_str(), &find_file_data );
+	if ( find_handle != INVALID_HANDLE_VALUE )
 	{
 		// keep going until we run out of files
 		do 
 		{
-			std::string filePath( mFolderPath );
+			std::string filePath( _folder_path );
 			filePath += '\\';
-			filePath += nowide::convert(findFileData.cFileName);
+			filePath += nowide::convert(find_file_data.cFileName);
 
 			Json::Reader reader;
 
-			mConfigFiles.push_back( filePath );
+			_config_files.push_back( filePath );
 			std::ifstream configFile( filePath, ifstream::in );
-			bool successful = reader.parse( configFile, mConfigFiles.back().rootValue );
+			bool successful = reader.parse( configFile, _config_files.back()._root_value );
 			configFile.close();
 
-			if (!successful)
-				gLog->Log( LOG_Config, "Failed to parse configuration: %s\n", reader.getFormattedErrorMessages().c_str() );
-		} while( FindNextFileW( findHandle, &findFileData ) != 0 );
+			if ( !successful )
+				g_log->Log( LOG_Config, "Failed to parse configuration: %s\n", reader.getFormattedErrorMessages().c_str() );
+		} while( FindNextFileW( find_handle, &find_file_data ) != 0 );
 
-		FindClose( findHandle );
+		FindClose( find_handle );
 	}
 #endif // WIN32
 }
@@ -124,41 +124,40 @@ void JSONConfig::CheckForConfigFolderChanges()
 {
 #ifdef WIN32
 	// tell this not to wait and just return right away
-	DWORD waitValue = WaitForSingleObject( mFolderChangeNotification, 0 );
-	if ( waitValue == WAIT_OBJECT_0 )
+	DWORD wait_value = WaitForSingleObject( _folder_change_notification, 0 );
+	if ( wait_value == WAIT_OBJECT_0 )
 	{
 		// clear out the configs and then reparse them
-		mConfigFiles.clear();
+		_config_files.clear();
 		ParseConfigs();
 		LinkValuesToVariables();
 
 		// eat all of the rest of the notifications
-		// some times multiple are sent for the same save operation
+		// sometimes multiple are sent for the same save operation
 		// we don't need to reparse on them because we JUST did it
-		DWORD waitValue;
 		do 
 		{
-			FindNextChangeNotification( mFolderChangeNotification );
-			waitValue = WaitForSingleObject( mFolderChangeNotification, 0 );
-		} while ( waitValue == WAIT_OBJECT_0 );
+			FindNextChangeNotification( _folder_change_notification );
+			wait_value = WaitForSingleObject( _folder_change_notification, 0 );
+		} while ( wait_value == WAIT_OBJECT_0 );
 	}
 #endif // WIN32
 }
 
 void JSONConfig::DebugPrintJSONConfigs()
 {
-	for ( tConfigFileVector::iterator configs = mConfigFiles.begin(); configs != mConfigFiles.end(); ++configs )
+	for ( tConfigFileVector::iterator configs = _config_files.begin(); configs != _config_files.end(); ++configs )
 	{
-		gLog->Log( LOG_Config, "Config File: %s\n", configs->configName.c_str() );
-		InternalPrintValue( configs->rootValue );
+		g_log->Log( LOG_Config, "Config File: %s\n", configs->_config_name.c_str() );
+		InternalPrintValue( configs->_root_value );
 	}
 }
 
 void JSONConfig::Initialize()
 {
-	for ( tPropsToDataMap::iterator i = mPropsToPropsDataMap.begin(); i != mPropsToPropsDataMap.end(); ++i )
+	for ( tPropsToDataMap::iterator i = _props_to_data_map.begin(); i != _props_to_data_map.end(); ++i )
 	{
-		i->second.propsName = i->first->GetName();
+		i->second._props_name = i->first->GetName();
 		i->first->StaticInitProps();
 	}
 
@@ -168,18 +167,18 @@ void JSONConfig::Initialize()
 
 void JSONConfig::LinkValuesToVariables()
 {
-	for ( tPropsToDataMap::iterator props = mPropsToPropsDataMap.begin(); props != mPropsToPropsDataMap.end(); ++props )
+	for ( tPropsToDataMap::iterator props = _props_to_data_map.begin(); props != _props_to_data_map.end(); ++props )
 	{
-		for ( tConfigFileVector::iterator configs = mConfigFiles.begin(); configs != mConfigFiles.end(); ++configs )
+		for ( tConfigFileVector::iterator configs = _config_files.begin(); configs != _config_files.end(); ++configs )
 		{
-			Json::Value propsValues = configs->rootValue[props->second.propsName];
+			Json::Value props_values = configs->_root_value[props->second._props_name];
 
 			PropsData &data = props->second;
-			for (unsigned i = 0; i < data.configVars.size(); ++i)
+			for (unsigned i = 0; i < data._config_vars.size(); ++i)
 			{
-				ConfigVar &var = data.configVars[i];
-				if ( propsValues.isMember( var.configName ) )
-					var.AssignValue( propsValues );
+				ConfigVar &var = data._config_vars[i];
+				if ( props_values.isMember( var._config_name ) )
+					var.AssignValue( props_values );
 			}
 		}
 	}
@@ -187,19 +186,19 @@ void JSONConfig::LinkValuesToVariables()
 
 void JSONConfig::AddPropsCallback( BaseProps *props )
 {
-	mPropsToPropsDataMap[props];
+	_props_to_data_map[props];
 }
 
-void JSONConfig::AddNewProps( BaseProps *props, const std::string &typeName, void* data, ConfigVarType dataType )
+void JSONConfig::AddNewProps( BaseProps *props, const std::string &type_name, void* data, ConfigVarType data_type )
 {
 	ConfigVar temp;
-	temp.configName = typeName;
-	temp.type = dataType;
+	temp._config_name = type_name;
+	temp._type = data_type;
 
 	// it doesn't matter which we use since it's a union an they're all pointers
-	temp.valueInt = static_cast<int*>( data );
+	temp._value_int = static_cast<int*>( data );
 
-	mPropsToPropsDataMap[props].configVars.push_back( temp );
+	_props_to_data_map[props]._config_vars.push_back( temp );
 }
 
 void JSONConfig::InternalPrintValue( Json::Value &value, const std::string &path/*="."*/ )
@@ -207,30 +206,30 @@ void JSONConfig::InternalPrintValue( Json::Value &value, const std::string &path
 	switch ( value.type() )
 	{
 	case Json::nullValue:
-		gLog->Log( LOG_Engine, "%s=null\n", path.c_str() );
+		g_log->Log( LOG_Engine, "%s=null\n", path.c_str() );
 		break;
 	case Json::intValue:
-		gLog->Log( LOG_Engine, "%s=%s\n", path.c_str(), Json::valueToString( value.asLargestInt() ).c_str() );
+		g_log->Log( LOG_Engine, "%s=%s\n", path.c_str(), Json::valueToString( value.asLargestInt() ).c_str() );
 		break;
 	case Json::uintValue:
-		gLog->Log( LOG_Engine, "%s=%s\n", path.c_str(), Json::valueToString( value.asLargestUInt() ).c_str() );
+		g_log->Log( LOG_Engine, "%s=%s\n", path.c_str(), Json::valueToString( value.asLargestUInt() ).c_str() );
 		break;
 	case Json::realValue:
-		gLog->Log( LOG_Engine, "%s=%.16g\n", path.c_str(), value.asDouble() );
+		g_log->Log( LOG_Engine, "%s=%.16g\n", path.c_str(), value.asDouble() );
 		break;
 	case Json::stringValue:
-		gLog->Log( LOG_Engine, "%s=\"%s\"\n", path.c_str(), value.asString().c_str() );
+		g_log->Log( LOG_Engine, "%s=\"%s\"\n", path.c_str(), value.asString().c_str() );
 		break;
 	case Json::booleanValue:
-		gLog->Log( LOG_Engine, "%s=%s\n", path.c_str(), value.asBool() ? "true" : "false" );
+		g_log->Log( LOG_Engine, "%s=%s\n", path.c_str(), value.asBool() ? "true" : "false" );
 		break;
 	case Json::arrayValue:
 		{
-			gLog->Log( LOG_Engine, "%s=[]\n", path.c_str() );
+			g_log->Log( LOG_Engine, "%s=[]\n", path.c_str() );
 			int size = value.size();
 			for ( int index =0; index < size; ++index )
 			{
-				static char buffer[16];
+				char buffer[16];
 				sprintf_s( buffer, 16, "[%d]", index );
 				InternalPrintValue( value[index], path + buffer );
 			}
@@ -238,13 +237,11 @@ void JSONConfig::InternalPrintValue( Json::Value &value, const std::string &path
 		break;
 	case Json::objectValue:
 		{
-			gLog->Log( LOG_Engine, "%s={}\n", path.c_str() );
+			g_log->Log( LOG_Engine, "%s={}\n", path.c_str() );
 			Json::Value::Members members( value.getMemberNames() );
 			std::sort( members.begin(), members.end() );
 			std::string suffix = *(path.end()-1) == '.' ? "" : ".";
-			for ( Json::Value::Members::iterator it = members.begin(); 
-				it != members.end(); 
-				++it )
+			for ( Json::Value::Members::iterator it = members.begin(); it != members.end(); ++it )
 			{
 				const std::string &name = *it;
 				InternalPrintValue( value[name], path + suffix + name );

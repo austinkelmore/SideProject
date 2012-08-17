@@ -33,12 +33,12 @@ int WINAPI WinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, 
 #endif // WIN32
 
 	// set up the logging first so that we have a report mechanism in case other things fail
-	gLog = new Logging();
+	g_log = new Logging();
 
-	// gConfig is guaranteed to be initialized because of the static props initializing it
-	gConfig->ReadConfigFolder("configs");
-	gConfig->Initialize();
-	gConfig->DebugPrintJSONConfigs();
+	// g_config is guaranteed to be initialized because of the static props initializing it
+	g_config->ReadConfigFolder("configs");
+	g_config->Initialize();
+	g_config->DebugPrintJSONConfigs();
 
 	IFramework* framework = CreateFramework();
 	if ( !framework->Init() )
@@ -47,12 +47,12 @@ int WINAPI WinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, 
 	while ( !framework->IsDone() )
 	{
 		framework->Update();
-		gConfig->CheckForConfigFolderChanges();
+		g_config->CheckForConfigFolderChanges();
 	}
 
 	delete framework;
-	delete gLog;
-	delete gConfig;
+	delete g_log;
+	delete g_config;
 
 	return 0;
 }

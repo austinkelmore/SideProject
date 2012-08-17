@@ -10,21 +10,21 @@
 
 IMPLEMENT_CONFIG( Log, Logging )
 {
-	ADD_PROPS( int, FlushFrequency );
+	ADD_PROPS( int, Flush_Frequency );
 }
 
-Logging* gLog = NULL;
+Logging* g_log = NULL;
 
 Logging::Logging()
 {
 	// do nothing
-	mCurrentFlushCount = 0;
+	_current_flush_count = 0;
 }
 
 Logging::~Logging()
 {
 	// do nothing
-	gLog = NULL;
+	g_log = NULL;
 }
 
 void Logging::Log( LogChannel channel, const char *format, ... )
@@ -35,18 +35,18 @@ void Logging::Log( LogChannel channel, const char *format, ... )
 	va_list argList;
 	va_start( argList, format );
 
-	int charsWritten = vsprintf_s( buffer, MAX_CHARS, format, argList );
-	buffer[MAX_CHARS] = '\0';
+	int chars_written = vsprintf_s( buffer, MAX_CHARS, format, argList );
+	buffer[chars_written] = '\0';
 
 #ifdef WIN32
 	OutputDebugStringW( nowide::convert(buffer).c_str() );
 #endif // WIN32
 
-	if ( mCurrentFlushCount == 0 )
+	if ( _current_flush_count == 0 )
 	{
-		mCurrentFlushCount = GetProps()->FlushFrequency;
+		_current_flush_count = GetProps()->Flush_Frequency;
 		fflush(stdout);
 	}
 	else
-		--mCurrentFlushCount;
+		--_current_flush_count;
 }

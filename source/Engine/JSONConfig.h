@@ -36,7 +36,7 @@ static xClassName::xConfigName##Props s_##xConfigName##Props; \
 xClassName::xConfigName##Props* xClassName::GetProps() { return &s_##xConfigName##Props; } \
 void xClassName::xConfigName##Props::StaticInitProps()
 
-#define ADD_PROPS( xType, xVarName ) gConfig->AddNewProps( this, #xVarName, &xVarName, gConfig->GetType<xType>() )
+#define ADD_PROPS( xType, xVarName ) g_config->AddNewProps( this, #xVarName, &xVarName, g_config->GetType<xType>() )
 
 enum ConfigVarType
 {
@@ -51,36 +51,36 @@ struct ConfigVar
 {
 	union
 	{
-		bool *valueBool;
-		int *valueInt;
-		float *valueFloat;
-		std::string *valueString;
-		BaseProps *valueProps;
+		bool *_value_bool;
+		int *_value_int;
+		float *_value_float;
+		std::string *_value_string;
+		BaseProps *_value_props;
 	};
 
-	std::string configName;
-	ConfigVarType type;
+	std::string _config_name;
+	ConfigVarType _type;
 
-	void AssignValue( const Json::Value &configValue );
+	void AssignValue( const Json::Value &config_value );
 };
 
 typedef std::vector<ConfigVar> ConfigVarList;
 
 struct PropsData
 {
-	PropsData() : staticInitCallback(NULL) { }
-	ConfigVarList configVars;
-	std::string propsName;
-	void (*staticInitCallback)(void);
+	PropsData() : _static_init_callback(NULL) { }
+	ConfigVarList _config_vars;
+	std::string _props_name;
+	void (*_static_init_callback)(void);
 };
 
 struct ConfigFileData
 {
 	ConfigFileData() {}
-	ConfigFileData(const std::string name) : configName(name) {}
+	ConfigFileData(const std::string &name) : _config_name(name) {}
 
-	std::string configName;
-	Json::Value rootValue;
+	std::string _config_name;
+	Json::Value _root_value;
 };
 
 typedef std::map<BaseProps*, PropsData> tPropsToDataMap;
@@ -94,12 +94,12 @@ public:
 	JSONConfig();
 	~JSONConfig();
 
-	void ReadConfigFolder( const std::string &folderPath );
+	void ReadConfigFolder( const std::string &folder_path );
 	void CheckForConfigFolderChanges();
 
 	void DebugPrintJSONConfigs();
 
-	void AddNewProps( BaseProps *props, const std::string &typeName, void* data, ConfigVarType dataType );
+	void AddNewProps( BaseProps *props, const std::string &type_name, void* data, ConfigVarType data_type );
 	void AddPropsCallback( BaseProps *props );
 
 	void Initialize();
@@ -111,12 +111,12 @@ public:
 	template <> ConfigVarType GetType<std::string>() { return CONFIGVAR_String; }
 
 private:
-	tConfigFileVector mConfigFiles;
-	tPropsToDataMap mPropsToPropsDataMap;
-	std::string mFolderPath;
+	tConfigFileVector _config_files;
+	tPropsToDataMap _props_to_data_map;
+	std::string _folder_path;
 
 #ifdef WIN32
-	HANDLE mFolderChangeNotification;
+	HANDLE _folder_change_notification;
 #endif // WIN32
 
 	void InternalPrintValue( Json::Value &value, const std::string &path="." );
@@ -124,4 +124,4 @@ private:
 	void ParseConfigs();
 };
 
-extern JSONConfig* gConfig;
+extern JSONConfig* g_config;

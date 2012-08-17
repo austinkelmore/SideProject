@@ -2,95 +2,95 @@
 #include "Win32Framework.h"
 #include <gl\glu.h>
 
-Win32Framework* gFramework = NULL;
+Win32Framework* g_framework = NULL;
 
 IFramework* CreateFramework()
 {
-	//ASSERT( gFramework = NULL );
-	gFramework = new Win32Framework();
-	return gFramework;
+	//ASSERT( g_framework = NULL );
+	g_framework = new Win32Framework();
+	return g_framework;
 }
 
 Win32Framework::Win32Framework()
 	: IFramework()
 {
-	mAppInstance = NULL;
-	mWindow = NULL;
-	mDeviceContext = NULL;
-	mFullscreen = false;
+	_app_instance = NULL;
+	_window = NULL;
+	_device_context = NULL;
+	_fullscreen = false;
 }
 
 Win32Framework::~Win32Framework()
 {
 	Destroy();
-	gFramework = NULL;
+	g_framework = NULL;
 }
 
 bool Win32Framework::Init()
 {
-	mAppInstance = GetModuleHandle( NULL );
-	mWindowClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-	mWindowClass.lpfnWndProc = &Win32Framework::WindowsMessageProc;
-	mWindowClass.cbClsExtra = 0;
-	mWindowClass.cbWndExtra = 0;
-	mWindowClass.hInstance = mAppInstance;
-	mWindowClass.hIcon = LoadIcon( NULL, IDI_WINLOGO );
-	mWindowClass.hCursor = LoadCursor( NULL, IDC_ARROW );
-	mWindowClass.hbrBackground = NULL;
-	mWindowClass.lpszMenuName = NULL;
-	mWindowClass.lpszClassName = L"SideProject";
+	_app_instance = GetModuleHandle( NULL );
+	_window_class.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+	_window_class.lpfnWndProc = &Win32Framework::WindowsMessageProc;
+	_window_class.cbClsExtra = 0;
+	_window_class.cbWndExtra = 0;
+	_window_class.hInstance = _app_instance;
+	_window_class.hIcon = LoadIcon( NULL, IDI_WINLOGO );
+	_window_class.hCursor = LoadCursor( NULL, IDC_ARROW );
+	_window_class.hbrBackground = NULL;
+	_window_class.lpszMenuName = NULL;
+	_window_class.lpszClassName = L"SideProject";
 
-	if ( !RegisterClass( &mWindowClass ) )
+	if ( !RegisterClass( &_window_class ) )
 	{
 		MessageBox( NULL, L"Failed to register the window class.", L"Error", MB_OK|MB_ICONEXCLAMATION );
 		return false;
 	}
 
-	if ( mFullscreen )
+	if ( _fullscreen )
 	{
-		memset( &mScreenSettings, 0, sizeof(mScreenSettings) );
-		mScreenSettings.dmSize = sizeof(mScreenSettings);
-		mScreenSettings.dmPelsWidth = 640;
-		mScreenSettings.dmPelsHeight = 480;
-		mScreenSettings.dmBitsPerPel = 32;
-		mScreenSettings.dmFields = DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT;
+		memset( &_screen_settings, 0, sizeof(_screen_settings) );
+		_screen_settings.dmSize = sizeof(_screen_settings);
+		_screen_settings.dmPelsWidth = 640;
+		_screen_settings.dmPelsHeight = 480;
+		_screen_settings.dmBitsPerPel = 32;
+		_screen_settings.dmFields = DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT;
 
-		if ( ChangeDisplaySettings( &mScreenSettings, CDS_FULLSCREEN ) != DISP_CHANGE_SUCCESSFUL )
+		if ( ChangeDisplaySettings( &_screen_settings, CDS_FULLSCREEN ) != DISP_CHANGE_SUCCESSFUL )
 		{
 			MessageBox( NULL, L"Can't switch to full screen mode.", L"Error", MB_OK|MB_ICONSTOP );
 			return false;
 		}
 	}
 
-	mWindowRect.left=(long)0;			// Set Left Value To 0
-	mWindowRect.right=(long)640;		// Set Right Value To Requested Width
-	mWindowRect.top=(long)0;			// Set Top Value To 0
-	mWindowRect.bottom=(long)480;		// Set Bottom Value To Requested Height
+	_window_rect.left = 0;			// Set Left Value To 0
+	_window_rect.right = 640;		// Set Right Value To Requested Width
+	_window_rect.top = 0;			// Set Top Value To 0
+	_window_rect.bottom = 480;		// Set Bottom Value To Requested Height
 
-	AdjustWindowRectEx( &mWindowRect, WS_OVERLAPPEDWINDOW, FALSE, WS_EX_APPWINDOW|WS_EX_WINDOWEDGE );
+	AdjustWindowRectEx( &_window_rect, WS_OVERLAPPEDWINDOW, FALSE, WS_EX_APPWINDOW|WS_EX_WINDOWEDGE );
 
-	if ( !( mWindow = CreateWindow( L"SideProject",
+	if ( !( _window = CreateWindow( L"SideProject",
 									L"Did this work?",
 									WS_OVERLAPPEDWINDOW|WS_CLIPSIBLINGS|WS_CLIPCHILDREN, 
 									0, 0, 640, 480,
 									NULL, NULL,
-									mAppInstance,
+									_app_instance,
 									NULL ) ) )
 	{
 		MessageBox( NULL, L"Window creation error.", L"Error", MB_OK|MB_ICONEXCLAMATION );
 		return false;
 	}
 
-	ShowWindow( mWindow,SW_SHOW );
+	ShowWindow( _window, SW_SHOW );
 
-	if ( !( mDeviceContext = GetDC( mWindow ) ) )
+	if ( !( _device_context = GetDC( _window ) ) )
 	{
 		Destroy();
 		MessageBox( NULL, L"Can't create a GL Device Context.", L"Error", MB_OK|MB_ICONEXCLAMATION );
 		return false;
 	}
 
-	PIXELFORMATDESCRIPTOR pfd =						// pfd Tells Windows How We Want Things To Be
+	PIXELFORMATDESCRIPTOR pixel_format_descriptor =	// pfd Tells Windows How We Want Things To Be
 	{
 		sizeof(PIXELFORMATDESCRIPTOR),				// Size Of This Pixel Format Descriptor
 		1,											// Version Number
@@ -111,58 +111,58 @@ bool Win32Framework::Init()
 		0,											// Reserved
 		0, 0, 0										// Layer Masks Ignored
 	};
-	mPixelDescriptor = pfd;
+	_pixel_descriptor = pixel_format_descriptor;
 
-	if ( !( mPixelFormat = ChoosePixelFormat( mDeviceContext, &mPixelDescriptor ) ) )	// Did Windows Find A Matching Pixel Format?
+	if ( !( _pixel_format = ChoosePixelFormat( _device_context, &_pixel_descriptor ) ) )	// Did Windows Find A Matching Pixel Format?
 	{
 		Destroy();
 		MessageBox( NULL, L"Can't find a pixel format.", L"Error", MB_OK|MB_ICONEXCLAMATION );
 		return false;
 	}
 
-	if( !SetPixelFormat( mDeviceContext, mPixelFormat, &mPixelDescriptor) )		// Are We Able To Set The Pixel Format?
+	if( !SetPixelFormat( _device_context, _pixel_format, &_pixel_descriptor) )		// Are We Able To Set The Pixel Format?
 	{
 		Destroy();
 		MessageBox( NULL, L"Can't set the pixel format.", L"Error", MB_OK|MB_ICONEXCLAMATION );
 		return false;
 	}
 
-	if ( !( mRenderContext = wglCreateContext( mDeviceContext ) ) )				// Are We Able To Get A Rendering Context?
+	if ( !( _render_context = wglCreateContext( _device_context ) ) )				// Are We Able To Get A Rendering Context?
 	{
 		Destroy();
 		MessageBox( NULL, L"Can't create a GL rendering context.", L"Error", MB_OK|MB_ICONEXCLAMATION );
 		return false;
 	}
 
-	if( !wglMakeCurrent( mDeviceContext, mRenderContext ) )					// Try To Activate The Rendering Context
+	if( !wglMakeCurrent( _device_context, _render_context ) )					// Try To Activate The Rendering Context
 	{
 		Destroy();
 		MessageBox( NULL, L"Can't activate the GL render context.", L"Error", MB_OK|MB_ICONEXCLAMATION );
 		return false;
 	}
 
-	ShowWindow( mWindow, SW_SHOW );						// Show The Window
-	SetForegroundWindow( mWindow );						// Slightly Higher Priority
-	SetFocus( mWindow );									// Sets Keyboard Focus To The Window
+	ShowWindow( _window, SW_SHOW );						// Show The Window
+	SetForegroundWindow( _window );						// Slightly Higher Priority
+	SetFocus( _window );								// Sets Keyboard Focus To The Window
 
 	// todo: amcgee - turn this into a function to resize the screen
-	glViewport(0,0,640,480);						// Reset The Current Viewport
+	glViewport( 0, 0, 640, 480 );						// Reset The Current Viewport
 
-	glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
+	glMatrixMode( GL_PROJECTION );						// Select The Projection Matrix
 	glLoadIdentity();									// Reset The Projection Matrix
 
 	// Calculate The Aspect Ratio Of The Window
-	gluPerspective(45.0f,(GLfloat)640/(GLfloat)480,0.1f,100.0f);
+	gluPerspective( 45.f, (GLfloat)640/(GLfloat)480, 0.1f, 100.f );
 
-	glMatrixMode(GL_MODELVIEW);							// Select The Modelview Matrix
+	glMatrixMode( GL_MODELVIEW );						// Select The Modelview Matrix
 	glLoadIdentity();
 
-	glShadeModel(GL_SMOOTH);							// Enable Smooth Shading
-	glClearColor(0.0f, 0.0f, 0.0f, 0.5f);				// Black Background
-	glClearDepth(1.0f);									// Depth Buffer Setup
-	glEnable(GL_DEPTH_TEST);							// Enables Depth Testing
-	glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
+	glShadeModel( GL_SMOOTH );							// Enable Smooth Shading
+	glClearColor( 0.f, 0.f, 0.f, 0.5f );				// Black Background
+	glClearDepth( 1.f );								// Depth Buffer Setup
+	glEnable( GL_DEPTH_TEST );							// Enables Depth Testing
+	glDepthFunc( GL_LEQUAL );							// The Type Of Depth Testing To Do
+	glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );// Really Nice Perspective Calculations
 	/*
 	if ( !InitGL() )									// Initialize Our Newly Created GL Window
 	{
@@ -176,42 +176,42 @@ bool Win32Framework::Init()
 
 void Win32Framework::Destroy()
 {
-	if ( mFullscreen )
+	if ( _fullscreen )
 	{
 		ChangeDisplaySettings( NULL, 0 );
 		ShowCursor( TRUE );
 	}
 
-	if ( mRenderContext )
+	if ( _render_context )
 	{
 		if ( !wglMakeCurrent (NULL, NULL ) )
 		{
 			MessageBox( NULL, L"Release of device context and render context failed.", L"Shutdown Error", MB_OK|MB_ICONINFORMATION );
 		}
 
-		if ( !wglDeleteContext( mRenderContext ) )
+		if ( !wglDeleteContext( _render_context ) )
 		{
 			MessageBox( NULL, L"Releasing the render context failed.", L"Shutdown Error", MB_OK|MB_ICONINFORMATION );
 		}
-		mRenderContext = NULL;
+		_render_context = NULL;
 	}
 
-	if ( mDeviceContext && !ReleaseDC( mWindow, mDeviceContext ) )
+	if ( _device_context && !ReleaseDC( _window, _device_context ) )
 	{
 		MessageBox( NULL, L"Releasing the device context failed.", L"Shutdown Error", MB_OK|MB_ICONINFORMATION );
-		mDeviceContext = NULL;
+		_device_context = NULL;
 	}
 
-	if ( mWindow && !DestroyWindow( mWindow ) )
+	if ( _window && !DestroyWindow( _window ) )
 	{
 		MessageBox( NULL, L"Could not release the handle to the window.", L"Shutdown Error", MB_OK|MB_ICONINFORMATION );
-		mWindow = NULL;
+		_window = NULL;
 	}
 
-	if ( mAppInstance && !UnregisterClass( L"SideProject", mAppInstance ) )
+	if ( _app_instance && !UnregisterClass( L"SideProject", _app_instance ) )
 	{
 		MessageBox( NULL, L"Could not unregister class.", L"Shutdown Error", MB_OK|MB_ICONEXCLAMATION );
-		mAppInstance = NULL;
+		_app_instance = NULL;
 	}
 }
 
@@ -237,7 +237,7 @@ void Win32Framework::Update()
 	{
 		if ( msg.message == WM_QUIT )
 		{
-			mExitFramework = true;
+			_exit_framework = true;
 		}
 		else
 		{
@@ -249,5 +249,5 @@ void Win32Framework::Update()
 	// draw the screen
 	glClear( GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT );
 	glLoadIdentity();
-	SwapBuffers( mDeviceContext );
+	SwapBuffers( _device_context );
 }

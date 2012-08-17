@@ -14,4 +14,4 @@ public:
 	virtual void Destroy();
 };
 
-extern OpenGLGraphicsDriver* gGraphicsDriver;
+extern OpenGLGraphicsDriver* g_graphics_driver;

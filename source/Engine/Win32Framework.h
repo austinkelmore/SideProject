@@ -23,18 +23,18 @@ public:
 private:
 
 	// windows related stuff
-	HINSTANCE mAppInstance;
-	WNDCLASS mWindowClass;
-	HWND mWindow;
-	DEVMODE mScreenSettings;
-	HDC mDeviceContext;
-	PIXELFORMATDESCRIPTOR mPixelDescriptor;
-	GLuint mPixelFormat;
-	HGLRC mRenderContext;
+	HINSTANCE _app_instance;
+	WNDCLASS _window_class;
+	HWND _window;
+	DEVMODE _screen_settings;
+	HDC _device_context;
+	PIXELFORMATDESCRIPTOR _pixel_descriptor;
+	GLuint _pixel_format;
+	HGLRC _render_context;
 
 	// config vars
-	bool mFullscreen;
-	RECT mWindowRect;
+	bool _fullscreen;
+	RECT _window_rect;
 };
 
-extern Win32Framework* gFramework;
+extern Win32Framework* g_framework;
