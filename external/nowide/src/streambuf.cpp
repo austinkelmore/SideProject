@@ -29,9 +29,9 @@ namespace nowide {
 			*pptr()=c;
 			real_size++;
 		}
-		if(real_size > 0 && std::streamsize(device().write(pbase(),real_size))!=real_size)
+		if(real_size > 0 && std::streamsize(device().write(pbase(),size_t(real_size)))!=real_size)
 			return EOF;
-		pbump(-n);
+		pbump(-int(n));
 		return 0;
 	}
 	int streambuf::sync()
