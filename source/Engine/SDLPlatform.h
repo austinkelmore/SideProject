@@ -2,8 +2,10 @@
 #pragma once
 
 #include "IPlatform.h"
-#include <windows.h>
 #include "JSONConfig.h"
+
+#include <SDL/include/SDL.h>
+#include <SDL/include/SDL_video.h>
 
 class SDLPlatform : public IPlatform
 {
@@ -28,9 +30,10 @@ public:
 	virtual void Destroy();
 	virtual void Update();
 	virtual void Resize(int width, int height);
-	virtual void Draw();
 
 private:
+
+	SDL_Surface* _screen;
 };
 
 extern SDLPlatform* g_platform;

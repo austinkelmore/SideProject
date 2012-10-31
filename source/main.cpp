@@ -11,7 +11,6 @@
 // extern the creation of these systems so they work with any systems that are compiled in
 extern IPlatform* CreateFramework();
 
-
 int WINAPI WinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, __in LPSTR lpCmdLine, __in int nShowCmd )
 {
 #if defined(_DEBUG) && defined(WIN32)

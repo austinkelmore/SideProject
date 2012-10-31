@@ -206,26 +206,26 @@ void JSONConfig::InternalPrintValue( Json::Value &value, const std::string &path
 	switch ( value.type() )
 	{
 	case Json::nullValue:
-		g_log->Log( LOG_Engine, "%s=null\n", path.c_str() );
+		g_log->Log( LOG_Config, "%s=null\n", path.c_str() );
 		break;
 	case Json::intValue:
-		g_log->Log( LOG_Engine, "%s=%s\n", path.c_str(), Json::valueToString( value.asLargestInt() ).c_str() );
+		g_log->Log( LOG_Config, "%s=%s\n", path.c_str(), Json::valueToString( value.asLargestInt() ).c_str() );
 		break;
 	case Json::uintValue:
-		g_log->Log( LOG_Engine, "%s=%s\n", path.c_str(), Json::valueToString( value.asLargestUInt() ).c_str() );
+		g_log->Log( LOG_Config, "%s=%s\n", path.c_str(), Json::valueToString( value.asLargestUInt() ).c_str() );
 		break;
 	case Json::realValue:
-		g_log->Log( LOG_Engine, "%s=%.16g\n", path.c_str(), value.asDouble() );
+		g_log->Log( LOG_Config, "%s=%.16g\n", path.c_str(), value.asDouble() );
 		break;
 	case Json::stringValue:
-		g_log->Log( LOG_Engine, "%s=\"%s\"\n", path.c_str(), value.asString().c_str() );
+		g_log->Log( LOG_Config, "%s=\"%s\"\n", path.c_str(), value.asString().c_str() );
 		break;
 	case Json::booleanValue:
-		g_log->Log( LOG_Engine, "%s=%s\n", path.c_str(), value.asBool() ? "true" : "false" );
+		g_log->Log( LOG_Config, "%s=%s\n", path.c_str(), value.asBool() ? "true" : "false" );
 		break;
 	case Json::arrayValue:
 		{
-			g_log->Log( LOG_Engine, "%s=[]\n", path.c_str() );
+			g_log->Log( LOG_Config, "%s=[]\n", path.c_str() );
 			int size = value.size();
 			for ( int index =0; index < size; ++index )
 			{
@@ -237,7 +237,7 @@ void JSONConfig::InternalPrintValue( Json::Value &value, const std::string &path
 		break;
 	case Json::objectValue:
 		{
-			g_log->Log( LOG_Engine, "%s={}\n", path.c_str() );
+			g_log->Log( LOG_Config, "%s={}\n", path.c_str() );
 			Json::Value::Members members( value.getMemberNames() );
 			std::sort( members.begin(), members.end() );
 			std::string suffix = *(path.end()-1) == '.' ? "" : ".";
