@@ -8,9 +8,9 @@
 	#include <windows.h>
 #endif // WIN32
 
-IMPLEMENT_CONFIG( Log, Logging )
+IMPLEMENT_CONFIG(Log, Logging)
 {
-	ADD_PROPS( int, Flush_Frequency );
+	ADD_PROPS(int, Flush_Frequency);
 }
 
 Logging* g_log = NULL;

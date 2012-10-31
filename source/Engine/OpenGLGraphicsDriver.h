@@ -13,5 +13,3 @@ public:
 	virtual void Update();
 	virtual void Destroy();
 };
-
-extern OpenGLGraphicsDriver* g_graphics_driver;

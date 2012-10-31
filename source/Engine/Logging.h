@@ -26,10 +26,10 @@ class Logging
 {
 public:
 	DEFINE_CONFIG(Log)
-		{
-			Flush_Frequency = 15;
-		}
-		int Flush_Frequency;
+	{
+		Flush_Frequency = 15;
+	}
+	int Flush_Frequency;
 	DEFINE_CONFIG_END(Log)
 
 	Logging();

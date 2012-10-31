@@ -1,5 +1,5 @@
 #include <windows.h>
-#include "Engine/Win32Framework.h"
+#include "Engine/SDLPlatform.h"
 
 #include "Engine/Logging.h"
 #include "Engine/JSONConfig.h"
@@ -9,7 +9,7 @@
 #include <crtdbg.h>
 
 // extern the creation of these systems so they work with any systems that are compiled in
-extern IFramework* CreateFramework();
+extern IPlatform* CreateFramework();
 
 
 int WINAPI WinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, __in LPSTR lpCmdLine, __in int nShowCmd )
@@ -25,7 +25,7 @@ int WINAPI WinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, 
 	::GetModuleFileNameW( NULL, &szPath[0], MAX_PATH );
 
 	wchar_t* dir_end = wcsrchr( &szPath[0], '\\' );
-	if ( dir_end != 0x0 )
+	if ( dir_end != NULL )
 	{
 		*dir_end = '\0';
 		::SetCurrentDirectoryW( szPath );
@@ -40,14 +40,19 @@ int WINAPI WinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, 
 	g_config->Initialize();
 	g_config->DebugPrintJSONConfigs();
 
-	IFramework* framework = CreateFramework();
-	if ( !framework->Init() )
+	IPlatform* framework = CreateFramework();
+	if ( !framework->Init(nShowCmd, &lpCmdLine) )
+	{
+		delete framework;
+		delete g_log;
+		delete g_config;
 		return -1;
+	}
 
 	while ( !framework->IsDone() )
 	{
-		framework->Update();
 		g_config->CheckForConfigFolderChanges();
+		framework->Update();
 	}
 
 	delete framework;
