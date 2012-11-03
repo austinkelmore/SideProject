@@ -18,14 +18,20 @@ namespace nowide {
 		} pos_type;
 		virtual size_t read(char *pos,size_t length)
 		{
+			(void)pos;
+			(void)length;
 			return 0;
 		}
 		virtual size_t write(char const *pos,size_t length)
 		{
+			(void)pos;
+			(void)length;
 			return 0;
 		}
 		virtual long long seek(long long position,pos_type pos = set)
 		{
+			(void)position;
+			(void)pos;
 			return -1;
 		}
 		virtual ~io_device()

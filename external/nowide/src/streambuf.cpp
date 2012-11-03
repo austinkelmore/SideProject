@@ -26,7 +26,7 @@ namespace nowide {
 		std::streamsize real_size = n;
 
 		if(c!=EOF) {
-			*pptr()=c;
+			*pptr()=(char)c;
 			real_size++;
 		}
 		if(real_size > 0 && std::streamsize(device().write(pbase(),size_t(real_size)))!=real_size)

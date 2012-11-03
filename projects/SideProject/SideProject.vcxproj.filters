@@ -25,7 +25,7 @@
     <Filter Include="Engine\Input">
       <UniqueIdentifier>{60b1b381-5580-4e02-9f3b-1373b6dcfaa2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\Plantform">
+    <Filter Include="Engine\Platform">
       <UniqueIdentifier>{01a07877-8abe-4d4a-bc6c-bc5be3d02392}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -67,10 +67,13 @@
       <Filter>Engine\Input</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\Engine\IPlatform.h">
-      <Filter>Engine\Plantform</Filter>
+      <Filter>Engine\Platform</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\Engine\SDLPlatform.h">
-      <Filter>Engine\Plantform</Filter>
+      <Filter>Engine\Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\BasicMacros.h">
+      <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -97,7 +100,7 @@
       <Filter>Engine\Input</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\Engine\SDLPlatform.cpp">
-      <Filter>Engine\Plantform</Filter>
+      <Filter>Engine\Platform</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
