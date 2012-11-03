@@ -96,6 +96,7 @@
     <ClInclude Include="..\..\external\nowide\nowide\cstdio.h" />
     <ClInclude Include="..\..\external\nowide\nowide\fstream.h" />
     <ClInclude Include="..\..\external\nowide\nowide\streambuf.h" />
+    <ClInclude Include="..\..\source\Engine\BasicMacros.h" />
     <ClInclude Include="..\..\source\Engine\IPlatform.h" />
     <ClInclude Include="..\..\source\Engine\IGraphicsDriver.h" />
     <ClInclude Include="..\..\source\Engine\JSONConfig.h" />

@@ -1,6 +1,7 @@
 
 #include "SDLPlatform.h"
 #include "Logging.h"
+#include "BasicMacros.h"
 
 #include <SDL/include/SDL.h>
 #include <SDL/include/SDL_video.h>
@@ -37,6 +38,8 @@ SDLPlatform::~SDLPlatform()
 
 bool SDLPlatform::Init(int argc, char** argv)
 {
+	UNUSED_VAR(argc);
+	UNUSED_VAR(argv);
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
 		g_log->Log(LOG_Platform, "Unable to initialize SDL Video: %s\n", SDL_GetError());
@@ -78,6 +81,8 @@ void SDLPlatform::Destroy()
 
 void SDLPlatform::Resize(int width, int height)
 {
+	UNUSED_VAR(width);
+	UNUSED_VAR(height);
 }
 
 void SDLPlatform::Update()

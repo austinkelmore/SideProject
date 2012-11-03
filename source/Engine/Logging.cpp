@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <nowide/convert.h>
 #include "JSONConfig.h"
+#include "BasicMacros.h"
 
 #ifdef WIN32
 	#include <windows.h>
@@ -29,6 +30,7 @@ Logging::~Logging()
 
 void Logging::Log( LogChannel channel, const char *format, ... )
 {
+	UNUSED_VAR(channel);
 	const unsigned int MAX_CHARS = 1023;
 	static char buffer[MAX_CHARS + 1];
 

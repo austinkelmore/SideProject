@@ -3,6 +3,7 @@
 
 #include "Engine/Logging.h"
 #include "Engine/JSONConfig.h"
+#include "Engine/BasicMacros.h"
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -13,6 +14,9 @@ extern IPlatform* CreateFramework();
 
 int WINAPI WinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, __in LPSTR lpCmdLine, __in int nShowCmd )
 {
+	UNUSED_VAR(hInstance);
+	UNUSED_VAR(hPrevInstance);
+
 #if defined(_DEBUG) && defined(WIN32)
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
