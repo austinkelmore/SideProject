@@ -57,23 +57,23 @@
     <ClInclude Include="..\..\source\Engine\Logging.h">
       <Filter>Engine\Log</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\Engine\IGraphicsDriver.h">
-      <Filter>Engine\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\Engine\OpenGLGraphicsDriver.h">
-      <Filter>Engine\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\source\Engine\Win32Input.h">
       <Filter>Engine\Input</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\Engine\IPlatform.h">
       <Filter>Engine\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\Engine\SDLPlatform.h">
-      <Filter>Engine\Platform</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\source\Engine\BasicMacros.h">
       <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\OpenGLGraphics.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\IGraphics.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\WindowsPlatform.h">
+      <Filter>Engine\Platform</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -93,13 +93,16 @@
     <ClCompile Include="..\..\source\Engine\Logging.cpp">
       <Filter>Engine\Log</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\Engine\OpenGLGraphicsDriver.cpp">
-      <Filter>Engine\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\Engine\Win32Input.cpp">
       <Filter>Engine\Input</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\Engine\SDLPlatform.cpp">
+    <ClCompile Include="..\..\source\Engine\OpenGLGraphics.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\WindowsPlatform.cpp">
+      <Filter>Engine\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\IPlatform.cpp">
       <Filter>Engine\Platform</Filter>
     </ClCompile>
   </ItemGroup>

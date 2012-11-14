@@ -1,16 +1,13 @@
 #include <windows.h>
-#include "Engine/SDLPlatform.h"
-
-#include "Engine/Logging.h"
-#include "Engine/JSONConfig.h"
 #include "Engine/BasicMacros.h"
+#include "Engine/IPlatform.h"
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
 
-// extern the creation of these systems so they work with any systems that are compiled in
-extern IPlatform* CreateFramework();
+// extern the creation of the platform so that we can change it at compile time
+extern IPlatform* CreatePlatform();
 
 int WINAPI WinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, __in LPSTR lpCmdLine, __in int nShowCmd )
 {
@@ -35,32 +32,16 @@ int WINAPI WinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, 
 	}
 #endif // WIN32
 
-	// set up the logging first so that we have a report mechanism in case other things fail
-	g_log = new Logging();
-
-	// g_config is guaranteed to be initialized because of the static props initializing it
-	g_config->ReadConfigFolder("configs");
-	g_config->Initialize();
-	g_config->DebugPrintJSONConfigs();
-
-	IPlatform* framework = CreateFramework();
-	if ( !framework->Init(nShowCmd, &lpCmdLine) )
+	IPlatform* platform = CreatePlatform();
+	if (platform->Init(nShowCmd, &lpCmdLine))
 	{
-		delete framework;
-		delete g_log;
-		delete g_config;
-		return -1;
+		while ( !platform->IsDone() )
+		{
+			platform->Update();
+		}
 	}
 
-	while ( !framework->IsDone() )
-	{
-		g_config->CheckForConfigFolderChanges();
-		framework->Update();
-	}
-
-	delete framework;
-	delete g_log;
-	delete g_config;
+	delete platform;
 
 	return 0;
 }

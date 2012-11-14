@@ -19,3 +19,5 @@ public:
 private:
 	bool _exit_framework;
 };
+
+extern IPlatform* g_platform;

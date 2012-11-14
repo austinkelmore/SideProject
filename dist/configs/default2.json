@@ -1,6 +1,7 @@
 {
 	"Platform" :
 	{
+		"Renderer" : "opengl",
 		"Fullscreen" : false,
 		"Width" : 640,
 		"Height" : 480
