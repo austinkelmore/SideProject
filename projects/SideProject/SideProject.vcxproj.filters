@@ -75,6 +75,9 @@
     <ClInclude Include="..\..\source\Engine\WindowsPlatform.h">
       <Filter>Engine\Platform</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\source\Engine\DirectXGraphics.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\main.cpp" />
@@ -104,6 +107,9 @@
     </ClCompile>
     <ClCompile Include="..\..\source\Engine\IPlatform.cpp">
       <Filter>Engine\Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\DirectXGraphics.cpp">
+      <Filter>Engine\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

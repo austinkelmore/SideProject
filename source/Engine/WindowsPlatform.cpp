@@ -2,6 +2,7 @@
 #include "WindowsPlatform.h"
 #include "Logging.h"
 #include "BasicMacros.h"
+#include "OpenGLGraphics.h"
 
 static LRESULT CALLBACK WindowsMessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
@@ -14,13 +15,17 @@ static LRESULT CALLBACK WindowsMessageHandler(HWND hwnd, UINT umessage, WPARAM w
 		// Check if the window is being closed or destroyed.
 		case WM_DESTROY:
 		case WM_CLOSE:
-			g_platform->Exit();
-			return 0;
+		{
+			if (!static_cast<WindowsPlatform*>(g_platform)->_ignore_window_messages)
+			{
+				g_platform->Exit();
+				return 0;
+			}
+		}
 
 		// All other messages pass to the message handler in the system class.
 		default:
 		{
-			//return ApplicationHandle->MessageHandler(hwnd, umessage, wparam, lparam);
 			return DefWindowProc(hwnd, umessage, wparam, lparam);
 		}
 	}
@@ -28,6 +33,7 @@ static LRESULT CALLBACK WindowsMessageHandler(HWND hwnd, UINT umessage, WPARAM w
 
 IMPLEMENT_CONFIG(Platform, WindowsPlatform)
 {
+	ADD_PROPS(std::string, Renderer);
 	ADD_PROPS(bool, Fullscreen);
 	ADD_PROPS(int, Width);
 	ADD_PROPS(int, Height);
@@ -51,8 +57,10 @@ IPlatform* CreatePlatform()
 WindowsPlatform::WindowsPlatform()
 	: IPlatform()
 {
+	_graphics_renderer = NULL;
 	_instance = NULL;
 	_window = NULL;
+	_ignore_window_messages = false;
 }
 
 WindowsPlatform::~WindowsPlatform()
@@ -65,7 +73,7 @@ bool WindowsPlatform::Init(int argc, char** argv)
 {
 	UNUSED_VAR(argc);
 	UNUSED_VAR(argv);
-	
+
 	_instance = GetModuleHandle(NULL);
 
 	LPCWSTR app_name = L"Side Project";
@@ -86,6 +94,36 @@ bool WindowsPlatform::Init(int argc, char** argv)
 	// Register the window class.
 	RegisterClassEx(&_window_class);
 
+	// do the correct initialization based off of what we're doing (defaulting to OpenGL)
+	if (GetProps()->Renderer != "directx")
+	{
+		_ignore_window_messages = true;
+		_window = CreateWindowEx(WS_EX_APPWINDOW, app_name, app_name,
+								WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+								200, 200, GetProps()->Width, GetProps()->Height,
+								NULL, NULL, _instance, NULL);
+
+		if (_window == NULL)
+			return false;
+
+		// hide the window because it's only a temp one
+		ShowWindow(_window, SW_HIDE);
+
+		OpenGLGraphics* opengl_graphics = new OpenGLGraphics();
+		_graphics_renderer = opengl_graphics;
+
+		opengl_graphics->PreInitializeWindowsOpenGL(_window);
+
+		// destroy the temp window
+		DestroyWindow(_window);
+		_window = NULL;
+		_ignore_window_messages = false;
+	}
+	else
+	{
+		// ASSERT(false);
+	}
+
 	DEVMODE dmScreenSettings;
 	if (GetProps()->Fullscreen)
 	{
@@ -99,14 +137,16 @@ bool WindowsPlatform::Init(int argc, char** argv)
 		ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
 	}
 
-	_window = CreateWindowEx(WS_EX_CLIENTEDGE, app_name, app_name,
-							 WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-							 200, 200, GetProps()->Width, GetProps()->Height,
-							 NULL, NULL, _instance, NULL);
+	// create the real window
+	_window = CreateWindowEx(WS_EX_APPWINDOW, app_name, app_name,
+							WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+							200, 200, GetProps()->Width, GetProps()->Height,
+							NULL, NULL, _instance, NULL);
 
 	if (_window == NULL)
-	{
-	}
+		return false;
+
+	_graphics_renderer->Init();
 
 	ShowWindow(_window, SW_SHOW);
 	SetForegroundWindow(_window);
@@ -129,6 +169,7 @@ void WindowsPlatform::Destroy()
 	UnregisterClass(_window_class.lpszClassName, _instance);
 
 	// delete all of the subsystems
+	delete _graphics_renderer;
 	delete g_log;
 	delete g_config;
 }
@@ -150,4 +191,14 @@ void WindowsPlatform::Update()
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+}
+
+HDC WindowsPlatform::GetDC() const
+{
+	return ::GetDC(_window);
+}
+
+HWND WindowsPlatform::GetWindow() const
+{
+	return _window;
 }
