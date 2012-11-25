@@ -95,13 +95,17 @@ bool WindowsPlatform::Init(int argc, char** argv)
 	RegisterClassEx(&_window_class);
 
 	// do the correct initialization based off of what we're doing (defaulting to OpenGL)
-	if (GetProps()->Renderer != "directx")
+	if (GetProps()->Renderer == "directx")
+	{
+		// ASSERT(false);
+	}
+	else
 	{
 		_ignore_window_messages = true;
 		_window = CreateWindowEx(WS_EX_APPWINDOW, app_name, app_name,
-								WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-								200, 200, GetProps()->Width, GetProps()->Height,
-								NULL, NULL, _instance, NULL);
+			WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+			200, 200, GetProps()->Width, GetProps()->Height,
+			NULL, NULL, _instance, NULL);
 
 		if (_window == NULL)
 			return false;
@@ -118,10 +122,6 @@ bool WindowsPlatform::Init(int argc, char** argv)
 		DestroyWindow(_window);
 		_window = NULL;
 		_ignore_window_messages = false;
-	}
-	else
-	{
-		// ASSERT(false);
 	}
 
 	DEVMODE dmScreenSettings;
@@ -151,9 +151,6 @@ bool WindowsPlatform::Init(int argc, char** argv)
 	ShowWindow(_window, SW_SHOW);
 	SetForegroundWindow(_window);
 	SetFocus(_window);
-
-	// hide the mouse cursor
-	//ShowCursor(false);
 
 	return true;
 }
