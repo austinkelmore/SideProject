@@ -26,11 +26,8 @@ class Logging
 {
 public:
 	DEFINE_CONFIG(Log)
-	{
-		Flush_Frequency = 15;
-	}
-	int Flush_Frequency;
-	DEFINE_CONFIG_END(Log)
+		int Flush_Frequency;
+	DEFINE_CONFIG_END()
 
 	Logging();
 	~Logging();

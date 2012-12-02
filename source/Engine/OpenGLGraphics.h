@@ -17,7 +17,7 @@ class OpenGLGraphics : public IGraphics
 {
 public:
 	OpenGLGraphics();
-	~OpenGLGraphics();
+	virtual ~OpenGLGraphics();
 
 	virtual bool Init();
 	virtual void Update();
@@ -29,7 +29,7 @@ public:
 
 private:
 	bool LoadExtensions();
-	int ChoosePixelFormat();
+	int ChoosePixelFormat(HDC device_context);
 
 #ifdef WIN32
 	HDC _device_context;

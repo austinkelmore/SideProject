@@ -33,24 +33,25 @@ static LRESULT CALLBACK WindowsMessageHandler(HWND hwnd, UINT umessage, WPARAM w
 
 IMPLEMENT_CONFIG(Platform, WindowsPlatform)
 {
-	ADD_PROPS(std::string, Renderer);
-	ADD_PROPS(bool, Fullscreen);
-	ADD_PROPS(int, Width);
-	ADD_PROPS(int, Height);
+	ADD_PROPS(std::string, Renderer, "opengl");
+	ADD_PROPS(bool, Fullscreen, false);
+	ADD_PROPS(int, Width, 200);
+	ADD_PROPS(int, Height, 200);
 }
 
 IPlatform* CreatePlatform()
 {
-	// set up the logging first so that we have a report mechanism in case other things fail
+	// make sure g_config is initialized by calling GetConfigManager first
+	JSONConfig::GetConfigManager()->ReadConfigFolder("configs");
+
+	// set up the logging second so that we have a report mechanism in case other things fail
 	g_log = new Logging();
 
-	// g_config is guaranteed to be initialized because of the static props initializing it
-	g_config->ReadConfigFolder("configs");
-	g_config->Initialize();
 	g_config->DebugPrintJSONConfigs();
 
 	//ASSERT( g_platform = NULL );
 	g_platform = new WindowsPlatform();
+
 	return g_platform;
 }
 
@@ -83,7 +84,7 @@ bool WindowsPlatform::Init(int argc, char** argv)
 	_window_class.cbClsExtra    = 0;
 	_window_class.cbWndExtra    = 0;
 	_window_class.hInstance     = _instance;
-	_window_class.hIcon		 = LoadIcon(NULL, IDI_WINLOGO);
+	_window_class.hIcon			= LoadIcon(NULL, IDI_WINLOGO);
 	_window_class.hIconSm       = _window_class.hIcon;
 	_window_class.hCursor       = LoadCursor(NULL, IDC_ARROW);
 	_window_class.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
@@ -160,13 +161,15 @@ void WindowsPlatform::Destroy()
 	if(GetProps()->Fullscreen)
 		ChangeDisplaySettings(NULL, 0);
 
+	// delete the rendering system first
+	delete _graphics_renderer;
+
 	DestroyWindow(_window);
 
 	// Remove the application instance.
 	UnregisterClass(_window_class.lpszClassName, _instance);
 
 	// delete all of the subsystems
-	delete _graphics_renderer;
 	delete g_log;
 	delete g_config;
 }

@@ -12,31 +12,40 @@
 class BaseProps
 {
 public:
-	BaseProps();
-	virtual BaseProps* New() = 0;
+	virtual ~BaseProps() {}
 	virtual char* GetName() = 0;
-	virtual void StaticInitProps() = 0;
+	virtual void InitProps() = 0;
 };
 
 #define DEFINE_CONFIG( xConfigName ) \
-class xConfigName##Props : public BaseProps \
-{ \
-public: \
-	BaseProps* New() { return new xConfigName##Props(); } \
-	char* GetName() { return #xConfigName; } \
-	void StaticInitProps(); \
-	xConfigName##Props() : BaseProps()
+	class xConfigName##Props; \
+	xConfigName##Props* GetProps(); \
+	class xConfigName##Props : public BaseProps \
+	{ \
+	public: \
+		virtual ~xConfigName##Props() {} \
+		virtual char* GetName() { return #xConfigName; } \
+		virtual void InitProps();
 
-#define DEFINE_CONFIG_END( xConfigName ) \
-}; \
-xConfigName##Props* GetProps();
+#define DEFINE_CONFIG_END() \
+	};
 
 #define IMPLEMENT_CONFIG( xConfigName, xClassName ) \
-static xClassName::xConfigName##Props s_##xConfigName##Props; \
-xClassName::xConfigName##Props* xClassName::GetProps() { return &s_##xConfigName##Props; } \
-void xClassName::xConfigName##Props::StaticInitProps()
+xClassName##::##xConfigName##Props* xClassName##::GetProps() \
+{ \
+	static xConfigName##Props* s_##xConfigName##Props = NULL; \
+	if (!s_##xConfigName##Props) \
+	{ \
+		s_##xConfigName##Props = new xConfigName##Props(); \
+		JSONConfig::GetConfigManager()->SetupProps( s_##xConfigName##Props ); \
+	} \
+	return s_##xConfigName##Props; \
+} \
+void xClassName##::##xConfigName##Props::InitProps()
 
-#define ADD_PROPS( xType, xVarName ) g_config->AddNewProps( this, #xVarName, &xVarName, g_config->GetType<xType>() )
+#define ADD_PROPS( xType, xVarName, xDefaultValue ) \
+	xVarName = xDefaultValue; \
+	g_config->AddNewPropsVariable( this, #xVarName, &xVarName, g_config->GetType<xType>() )
 
 enum ConfigVarType
 {
@@ -68,10 +77,8 @@ typedef std::vector<ConfigVar> ConfigVarList;
 
 struct PropsData
 {
-	PropsData() : _static_init_callback(NULL) { }
 	ConfigVarList _config_vars;
 	std::string _props_name;
-	void (*_static_init_callback)(void);
 };
 
 struct ConfigFileData
@@ -99,10 +106,8 @@ public:
 
 	void DebugPrintJSONConfigs();
 
-	void AddNewProps( BaseProps *props, const std::string &type_name, void* data, ConfigVarType data_type );
-	void AddPropsCallback( BaseProps *props );
-
-	void Initialize();
+	void AddNewPropsVariable( BaseProps *props, const std::string &type_name, void* data, ConfigVarType data_type );
+	void SetupProps( BaseProps *props );
 
 	template <class T> ConfigVarType GetType() { return CONFIGVAR_Props; }
 	template <> ConfigVarType GetType<bool>() { return CONFIGVAR_Bool; }

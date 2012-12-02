@@ -12,17 +12,11 @@ class WindowsPlatform : public IPlatform
 
 public:
 	DEFINE_CONFIG(Platform)
-	{
-		Renderer = "opengl";
-		Fullscreen = false;
-		Width = 200;
-		Height = 200;
-	}
-	std::string Renderer;
-	bool Fullscreen;
-	int Width;
-	int Height;
-	DEFINE_CONFIG_END(Platform)
+		std::string Renderer;
+		bool Fullscreen;
+		int Width;
+		int Height;
+	DEFINE_CONFIG_END()
 
 	WindowsPlatform();
 	virtual ~WindowsPlatform();

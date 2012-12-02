@@ -9,7 +9,7 @@ class DirectXGraphics : public IGraphics
 {
 public:
 	DirectXGraphics();
-	~DirectXGraphics();
+	virtual ~DirectXGraphics();
 
 	virtual bool Init();
 	virtual void Update();

@@ -21,7 +21,7 @@ bool OpenGLGraphics::Init()
 	if (!_device_context)
 		return false;
 
-	int chosen_pixel_format = ChoosePixelFormat();
+	int chosen_pixel_format = ChoosePixelFormat(_device_context);
 
 	PIXELFORMATDESCRIPTOR pixel_format_descriptor;
 	int ret_val = SetPixelFormat(_device_context, chosen_pixel_format, &pixel_format_descriptor);
@@ -248,10 +248,8 @@ bool OpenGLGraphics::LoadExtensions()
 	return true;
 }
 
-int OpenGLGraphics::ChoosePixelFormat()
+int OpenGLGraphics::ChoosePixelFormat(HDC device_context)
 {
-	HDC device_context = static_cast<WindowsPlatform*>(g_platform)->GetDC();
-
 	int attribute_list[] =
 	{
 		// Support for OpenGL rendering.

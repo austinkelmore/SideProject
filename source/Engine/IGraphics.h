@@ -5,7 +5,7 @@ class IGraphics
 {
 public:
 	IGraphics() {}
-	~IGraphics() {}
+	virtual ~IGraphics() {}
 
 	virtual bool Init() = 0;
 	virtual void Update() = 0;

@@ -1,4 +1,4 @@
-
+ 
 #include "JSONConfig.h"
 #include "Logging.h"
 #include <fstream>
@@ -15,12 +15,6 @@
 JSONConfig* g_config = NULL;
 
 using std::ifstream;
-
-BaseProps::BaseProps()
-{
-	// todo: amcgee - figure out how to make this not alloc memory in a constructor
-	JSONConfig::GetConfigManager()->AddPropsCallback( this );
-}
 
 void ConfigVar::AssignValue( const Json::Value &config_value )
 {
@@ -64,6 +58,12 @@ JSONConfig::~JSONConfig()
 #ifdef WIN32
 	FindCloseChangeNotification( _folder_change_notification );
 #endif // WIN32
+
+	// go through and delete all of the configs we created
+	for (tPropsToDataMap::iterator config = _props_to_data_map.begin(); config != _props_to_data_map.end(); ++config)
+	{
+		delete config->first;
+	}
 }
 
 void JSONConfig::ReadConfigFolder( const std::string &folder_path )
@@ -76,7 +76,8 @@ void JSONConfig::ReadConfigFolder( const std::string &folder_path )
 	if ( _folder_change_notification == INVALID_HANDLE_VALUE )
 	{
 		_folder_change_notification = NULL;
-		g_log->Log( LOG_Config, "Error trying to watch the configs directory: %d", GetLastError() );
+		if (g_log)
+			g_log->Log( LOG_Config, "Error trying to watch the configs directory: %d", GetLastError() );
 	}
 #endif // WIN32
 
@@ -112,7 +113,10 @@ void JSONConfig::ParseConfigs()
 			configFile.close();
 
 			if ( !successful )
-				g_log->Log( LOG_Config, "Failed to parse configuration: %s\n", reader.getFormattedErrorMessages().c_str() );
+			{
+				if (g_log)
+					g_log->Log( LOG_Config, "Failed to parse configuration: %s\n", reader.getFormattedErrorMessages().c_str() );
+			}
 		} while( FindNextFileW( find_handle, &find_file_data ) != 0 );
 
 		FindClose( find_handle );
@@ -146,23 +150,12 @@ void JSONConfig::CheckForConfigFolderChanges()
 
 void JSONConfig::DebugPrintJSONConfigs()
 {
+	// ASSERT(g_log);
 	for ( tConfigFileVector::iterator configs = _config_files.begin(); configs != _config_files.end(); ++configs )
 	{
 		g_log->Log( LOG_Config, "Config File: %s\n", configs->_config_name.c_str() );
 		InternalPrintValue( configs->_root_value );
 	}
-}
-
-void JSONConfig::Initialize()
-{
-	for ( tPropsToDataMap::iterator i = _props_to_data_map.begin(); i != _props_to_data_map.end(); ++i )
-	{
-		i->second._props_name = i->first->GetName();
-		i->first->StaticInitProps();
-	}
-
-	// now that we know of all the props, let's hook them up to their values
-	LinkValuesToVariables();
 }
 
 void JSONConfig::LinkValuesToVariables()
@@ -184,12 +177,28 @@ void JSONConfig::LinkValuesToVariables()
 	}
 }
 
-void JSONConfig::AddPropsCallback( BaseProps *props )
+void JSONConfig::SetupProps( BaseProps *props )
 {
-	_props_to_data_map[props];
+	PropsData& propsData = _props_to_data_map[props];
+
+	propsData._props_name = props->GetName();
+	props->InitProps();
+
+	// read the config and set the values on the variables
+	for ( tConfigFileVector::iterator configs = _config_files.begin(); configs != _config_files.end(); ++configs )
+	{
+		Json::Value props_values = configs->_root_value[propsData._props_name];
+
+		for (unsigned i = 0; i < propsData._config_vars.size(); ++i)
+		{
+			ConfigVar &var = propsData._config_vars[i];
+			if ( props_values.isMember( var._config_name ) )
+				var.AssignValue( props_values );
+		}
+	}
 }
 
-void JSONConfig::AddNewProps( BaseProps *props, const std::string &type_name, void* data, ConfigVarType data_type )
+void JSONConfig::AddNewPropsVariable( BaseProps *props, const std::string &type_name, void* data, ConfigVarType data_type )
 {
 	ConfigVar temp;
 	temp._config_name = type_name;
