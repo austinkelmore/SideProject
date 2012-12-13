@@ -4,8 +4,6 @@
 #include "IPlatform.h"
 #include "JSONConfig.h"
 
-class IGraphics;
-
 class WindowsPlatform : public IPlatform
 {
 	typedef IPlatform SuperClass;
@@ -37,5 +35,5 @@ private:
 	HWND _window;
 	WNDCLASSEX _window_class;
 
-	IGraphics* _graphics_renderer;
+	class IGraphics* _graphics_renderer;
 };
