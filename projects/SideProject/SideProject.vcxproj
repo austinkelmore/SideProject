@@ -59,6 +59,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)..\..\external\nowide\;$(SolutionDir)..\..\external\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ForcedIncludeFiles>$(SolutionDir)..\..\source\engine\MemoryManager.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -103,6 +104,7 @@
     <ClInclude Include="..\..\source\Engine\IGraphics.h" />
     <ClInclude Include="..\..\source\Engine\JSONConfig.h" />
     <ClInclude Include="..\..\source\Engine\Logging.h" />
+    <ClInclude Include="..\..\source\Engine\MemoryManager.h" />
     <ClInclude Include="..\..\source\Engine\OpenGLGraphics.h" />
     <ClInclude Include="..\..\source\Engine\WindowsPlatform.h" />
     <ClInclude Include="..\..\source\Engine\Win32Input.h" />
@@ -115,6 +117,7 @@
     <ClCompile Include="..\..\source\Engine\IPlatform.cpp" />
     <ClCompile Include="..\..\source\Engine\JSONConfig.cpp" />
     <ClCompile Include="..\..\source\Engine\Logging.cpp" />
+    <ClCompile Include="..\..\source\Engine\MemoryManager.cpp" />
     <ClCompile Include="..\..\source\Engine\OpenGLGraphics.cpp" />
     <ClCompile Include="..\..\source\Engine\WindowsPlatform.cpp" />
     <ClCompile Include="..\..\source\Engine\Win32Input.cpp" />

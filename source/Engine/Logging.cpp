@@ -44,11 +44,14 @@ void Logging::Log( LogChannel channel, const char *format, ... )
 	OutputDebugStringW( nowide::convert(buffer).c_str() );
 #endif // WIN32
 
-	if ( _current_flush_count == 0 )
+	if (g_log)
 	{
-		_current_flush_count = GetProps()->Flush_Frequency;
-		fflush(stdout);
+		if (g_log->GetFlushCount() == 0)
+		{
+			g_log->SetFlushCount(g_log->GetProps()->Flush_Frequency);
+			fflush(stdout);
+		}
+		else
+			g_log->SetFlushCount(g_log->GetFlushCount() - 1);
 	}
-	else
-		--_current_flush_count;
 }

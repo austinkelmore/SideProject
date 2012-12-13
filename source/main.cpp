@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "Engine/BasicMacros.h"
 #include "Engine/IPlatform.h"
+#include "Engine/MemoryManager.h"
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -32,6 +33,9 @@ int WINAPI WinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, 
 	}
 #endif // WIN32
 
+	// before we do anything, create the memory manager
+	MemoryManager::CreateMemoryManager();
+
 	IPlatform* platform = CreatePlatform();
 	if (platform->Init(nShowCmd, &lpCmdLine))
 	{
@@ -40,8 +44,10 @@ int WINAPI WinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, 
 			platform->Update();
 		}
 	}
-
+	
 	delete platform;
+
+	MemoryManager::GetMemoryManager()->DebugOutputAllocations();
 
 	return 0;
 }

@@ -28,6 +28,9 @@
     <Filter Include="Engine\Platform">
       <UniqueIdentifier>{01a07877-8abe-4d4a-bc6c-bc5be3d02392}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Memory">
+      <UniqueIdentifier>{f0b90ec8-2846-4a99-99dc-efd098c50a3c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\external\jsoncpp\json\json.h">
@@ -78,6 +81,9 @@
     <ClInclude Include="..\..\source\Engine\DirectXGraphics.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\source\Engine\MemoryManager.h">
+      <Filter>Engine\Memory</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\main.cpp" />
@@ -110,6 +116,9 @@
     </ClCompile>
     <ClCompile Include="..\..\source\Engine\DirectXGraphics.cpp">
       <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\MemoryManager.cpp">
+      <Filter>Engine\Memory</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

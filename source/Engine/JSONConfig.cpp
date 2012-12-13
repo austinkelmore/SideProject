@@ -76,8 +76,7 @@ void JSONConfig::ReadConfigFolder( const std::string &folder_path )
 	if ( _folder_change_notification == INVALID_HANDLE_VALUE )
 	{
 		_folder_change_notification = NULL;
-		if (g_log)
-			g_log->Log( LOG_Config, "Error trying to watch the configs directory: %d", GetLastError() );
+		Logging::Log( LOG_Config, "Error trying to watch the configs directory: %d", GetLastError() );
 	}
 #endif // WIN32
 
@@ -114,8 +113,7 @@ void JSONConfig::ParseConfigs()
 
 			if ( !successful )
 			{
-				if (g_log)
-					g_log->Log( LOG_Config, "Failed to parse configuration: %s\n", reader.getFormattedErrorMessages().c_str() );
+				Logging::Log( LOG_Config, "Failed to parse configuration: %s\n", reader.getFormattedErrorMessages().c_str() );
 			}
 		} while( FindNextFileW( find_handle, &find_file_data ) != 0 );
 
@@ -150,10 +148,9 @@ void JSONConfig::CheckForConfigFolderChanges()
 
 void JSONConfig::DebugPrintJSONConfigs()
 {
-	// ASSERT(g_log);
 	for ( tConfigFileVector::iterator configs = _config_files.begin(); configs != _config_files.end(); ++configs )
 	{
-		g_log->Log( LOG_Config, "Config File: %s\n", configs->_config_name.c_str() );
+		Logging::Log( LOG_Config, "Config File: %s\n", configs->_config_name.c_str() );
 		InternalPrintValue( configs->_root_value );
 	}
 }
@@ -215,26 +212,26 @@ void JSONConfig::InternalPrintValue( Json::Value &value, const std::string &path
 	switch ( value.type() )
 	{
 	case Json::nullValue:
-		g_log->Log( LOG_Config, "%s=null\n", path.c_str() );
+		Logging::Log( LOG_Config, "%s=null\n", path.c_str() );
 		break;
 	case Json::intValue:
-		g_log->Log( LOG_Config, "%s=%s\n", path.c_str(), Json::valueToString( value.asLargestInt() ).c_str() );
+		Logging::Log( LOG_Config, "%s=%s\n", path.c_str(), Json::valueToString( value.asLargestInt() ).c_str() );
 		break;
 	case Json::uintValue:
-		g_log->Log( LOG_Config, "%s=%s\n", path.c_str(), Json::valueToString( value.asLargestUInt() ).c_str() );
+		Logging::Log( LOG_Config, "%s=%s\n", path.c_str(), Json::valueToString( value.asLargestUInt() ).c_str() );
 		break;
 	case Json::realValue:
-		g_log->Log( LOG_Config, "%s=%.16g\n", path.c_str(), value.asDouble() );
+		Logging::Log( LOG_Config, "%s=%.16g\n", path.c_str(), value.asDouble() );
 		break;
 	case Json::stringValue:
-		g_log->Log( LOG_Config, "%s=\"%s\"\n", path.c_str(), value.asString().c_str() );
+		Logging::Log( LOG_Config, "%s=\"%s\"\n", path.c_str(), value.asString().c_str() );
 		break;
 	case Json::booleanValue:
-		g_log->Log( LOG_Config, "%s=%s\n", path.c_str(), value.asBool() ? "true" : "false" );
+		Logging::Log( LOG_Config, "%s=%s\n", path.c_str(), value.asBool() ? "true" : "false" );
 		break;
 	case Json::arrayValue:
 		{
-			g_log->Log( LOG_Config, "%s=[]\n", path.c_str() );
+			Logging::Log( LOG_Config, "%s=[]\n", path.c_str() );
 			int size = value.size();
 			for ( int index =0; index < size; ++index )
 			{
@@ -246,7 +243,7 @@ void JSONConfig::InternalPrintValue( Json::Value &value, const std::string &path
 		break;
 	case Json::objectValue:
 		{
-			g_log->Log( LOG_Config, "%s={}\n", path.c_str() );
+			Logging::Log( LOG_Config, "%s={}\n", path.c_str() );
 			Json::Value::Members members( value.getMemberNames() );
 			std::sort( members.begin(), members.end() );
 			std::string suffix = *(path.end()-1) == '.' ? "" : ".";
