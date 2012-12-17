@@ -34,11 +34,16 @@ public:
 
 	static void Log(LogChannel channel, const char *format, ...);
 
+	void EnableChannel(const LogChannel logChannel);
+	void DisableChannel(const LogChannel logChannel);
+	bool IsChannelEnabled(const LogChannel logChannel) const;
+
 	int GetFlushCount() { return _current_flush_count; }
 	void SetFlushCount(const int flush_count) { _current_flush_count = flush_count; }
 
 private:
 	int _current_flush_count; // how long ago we last flushed
+	std::vector<LogChannel> m_disabledChannels;
 };
 
 extern Logging* g_log;

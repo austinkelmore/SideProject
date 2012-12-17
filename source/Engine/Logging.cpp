@@ -31,6 +31,11 @@ Logging::~Logging()
 void Logging::Log(LogChannel channel, const char *format, ...)
 {
 	UNUSED_VAR(channel);
+
+	// see if we want to early out
+	if (g_log && !g_log->IsChannelEnabled(channel))
+		return;
+
 	const unsigned int MAX_CHARS = 1023;
 	static char buffer[MAX_CHARS + 1];
 
@@ -54,4 +59,38 @@ void Logging::Log(LogChannel channel, const char *format, ...)
 		else
 			g_log->SetFlushCount(g_log->GetFlushCount() - 1);
 	}
+}
+
+void Logging::EnableChannel(const LogChannel logChannel)
+{
+	// make sure we don't have it in the list already
+	for (unsigned int i = 0; i < m_disabledChannels.size(); ++i)
+	{
+		// ASSERT(m_disabledChannels[i] != logChannel);
+	}
+
+	m_disabledChannels.push_back(logChannel);
+}
+
+void Logging::DisableChannel(const LogChannel logChannel)
+{
+	for (unsigned int i = 0; i < m_disabledChannels.size(); ++i)
+	{
+		if (m_disabledChannels[i] == logChannel)
+		{
+			m_disabledChannels.erase(m_disabledChannels.begin()+i);
+			return;
+		}
+	}
+}
+
+bool Logging::IsChannelEnabled(const LogChannel logChannel) const
+{
+	for (unsigned int i = 0; i < m_disabledChannels.size(); ++i)
+	{
+		if (m_disabledChannels[i] == logChannel)
+			return false;
+	}
+
+	return true;
 }
