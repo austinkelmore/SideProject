@@ -32,7 +32,7 @@ public:
 	Logging();
 	~Logging();
 
-	static void Log( LogChannel channel, const char *format, ... );
+	static void Log(LogChannel channel, const char *format, ...);
 
 	int GetFlushCount() { return _current_flush_count; }
 	void SetFlushCount(const int flush_count) { _current_flush_count = flush_count; }

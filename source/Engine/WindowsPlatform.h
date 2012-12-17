@@ -19,7 +19,7 @@ public:
 	WindowsPlatform();
 	virtual ~WindowsPlatform();
 
-	virtual bool Init( int argc, char** argv );
+	virtual bool Init(int argc, char** argv);
 	virtual void Destroy();
 	virtual void Update();
 	virtual void Resize(int width, int height);

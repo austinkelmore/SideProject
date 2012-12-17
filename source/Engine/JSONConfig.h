@@ -17,7 +17,7 @@ public:
 	virtual void InitProps() = 0;
 };
 
-#define DEFINE_CONFIG( xConfigName ) \
+#define DEFINE_CONFIG(xConfigName) \
 	class xConfigName##Props; \
 	xConfigName##Props* GetProps(); \
 	class xConfigName##Props : public BaseProps \
@@ -30,14 +30,14 @@ public:
 #define DEFINE_CONFIG_END() \
 	};
 
-#define IMPLEMENT_CONFIG( xConfigName, xClassName ) \
+#define IMPLEMENT_CONFIG(xConfigName, xClassName) \
 xClassName##::##xConfigName##Props* xClassName##::GetProps() \
 { \
 	static xConfigName##Props* s_##xConfigName##Props = NULL; \
 	if (!s_##xConfigName##Props) \
 	{ \
 		s_##xConfigName##Props = new xConfigName##Props(); \
-		JSONConfig::GetConfigManager()->SetupProps( s_##xConfigName##Props ); \
+		JSONConfig::GetConfigManager()->SetupProps(s_##xConfigName##Props); \
 	} \
 	return s_##xConfigName##Props; \
 } \
@@ -45,7 +45,7 @@ void xClassName##::##xConfigName##Props::InitProps()
 
 #define ADD_PROPS( xType, xVarName, xDefaultValue ) \
 	xVarName = xDefaultValue; \
-	g_config->AddNewPropsVariable( this, #xVarName, &xVarName, g_config->GetType<xType>() )
+	g_config->AddNewPropsVariable(this, #xVarName, &xVarName, g_config->GetType<xType>())
 
 enum ConfigVarType
 {
@@ -101,13 +101,13 @@ public:
 	JSONConfig();
 	~JSONConfig();
 
-	void ReadConfigFolder( const std::string &folder_path );
+	void ReadConfigFolder(const std::string &folder_path);
 	void CheckForConfigFolderChanges();
 
 	void DebugPrintJSONConfigs();
 
-	void AddNewPropsVariable( BaseProps *props, const std::string &type_name, void* data, ConfigVarType data_type );
-	void SetupProps( BaseProps *props );
+	void AddNewPropsVariable(BaseProps *props, const std::string &type_name, void* data, ConfigVarType data_type);
+	void SetupProps(BaseProps *props);
 
 	template <class T> ConfigVarType GetType() { return CONFIGVAR_Props; }
 	template <> ConfigVarType GetType<bool>() { return CONFIGVAR_Bool; }
@@ -124,7 +124,7 @@ private:
 	HANDLE _folder_change_notification;
 #endif // WIN32
 
-	void InternalPrintValue( Json::Value &value, const std::string &path="." );
+	void InternalPrintValue(Json::Value &value, const std::string &path=".");
 	void LinkValuesToVariables();
 	void ParseConfigs();
 };

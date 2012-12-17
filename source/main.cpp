@@ -10,7 +10,7 @@
 // extern the creation of the platform so that we can change it at compile time
 extern IPlatform* CreatePlatform();
 
-int WINAPI WinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, __in LPSTR lpCmdLine, __in int nShowCmd )
+int WINAPI WinMain(__in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, __in LPSTR lpCmdLine, __in int nShowCmd)
 {
 	UNUSED_VAR(hInstance);
 	UNUSED_VAR(hPrevInstance);
@@ -23,13 +23,13 @@ int WINAPI WinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, 
 	// so that we can access paths correctly rather than where the exe was launched from
 #ifdef WIN32
 	wchar_t szPath[MAX_PATH];
-	::GetModuleFileNameW( NULL, &szPath[0], MAX_PATH );
+	::GetModuleFileNameW(NULL, &szPath[0], MAX_PATH);
 
-	wchar_t* dir_end = wcsrchr( &szPath[0], '\\' );
-	if ( dir_end != NULL )
+	wchar_t* dir_end = wcsrchr(&szPath[0], '\\');
+	if (dir_end != NULL)
 	{
 		*dir_end = '\0';
-		::SetCurrentDirectoryW( szPath );
+		::SetCurrentDirectoryW(szPath);
 	}
 #endif // WIN32
 
@@ -39,7 +39,7 @@ int WINAPI WinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, 
 	IPlatform* platform = CreatePlatform();
 	if (platform->Init(nShowCmd, &lpCmdLine))
 	{
-		while ( !platform->IsDone() )
+		while (!platform->IsDone())
 		{
 			platform->Update();
 		}

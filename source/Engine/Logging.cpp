@@ -28,7 +28,7 @@ Logging::~Logging()
 	g_log = NULL;
 }
 
-void Logging::Log( LogChannel channel, const char *format, ... )
+void Logging::Log(LogChannel channel, const char *format, ...)
 {
 	UNUSED_VAR(channel);
 	const unsigned int MAX_CHARS = 1023;
@@ -37,11 +37,11 @@ void Logging::Log( LogChannel channel, const char *format, ... )
 	va_list argList;
 	va_start( argList, format );
 
-	int chars_written = vsprintf_s( buffer, MAX_CHARS, format, argList );
+	int chars_written = vsprintf_s(buffer, MAX_CHARS, format, argList);
 	buffer[chars_written] = '\0';
 
 #ifdef WIN32
-	OutputDebugStringW( nowide::convert(buffer).c_str() );
+	OutputDebugStringW(nowide::convert(buffer).c_str());
 #endif // WIN32
 
 	if (g_log)
