@@ -31,6 +31,9 @@
     <Filter Include="Engine\Memory">
       <UniqueIdentifier>{f0b90ec8-2846-4a99-99dc-efd098c50a3c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Math">
+      <UniqueIdentifier>{dab56d89-5f09-4d28-8be5-b7a20eb272b8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\external\jsoncpp\json\json.h">
@@ -84,6 +87,9 @@
     <ClInclude Include="..\..\source\Engine\MemoryManager.h">
       <Filter>Engine\Memory</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\source\Engine\Vector.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\main.cpp" />
@@ -119,6 +125,9 @@
     </ClCompile>
     <ClCompile Include="..\..\source\Engine\MemoryManager.cpp">
       <Filter>Engine\Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\Vector.cpp">
+      <Filter>Engine\Math</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
