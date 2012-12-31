@@ -113,6 +113,7 @@
     <ClCompile Include="..\..\external\jsoncpp\jsoncpp.cpp" />
     <ClCompile Include="..\..\external\nowide\src\convert.cpp" />
     <ClCompile Include="..\..\external\nowide\src\streambuf.cpp" />
+    <ClCompile Include="..\..\source\Engine\BasicMacros.cpp" />
     <ClCompile Include="..\..\source\Engine\DirectXGraphics.cpp" />
     <ClCompile Include="..\..\source\Engine\IPlatform.cpp" />
     <ClCompile Include="..\..\source\Engine\JSONConfig.cpp" />

@@ -289,7 +289,7 @@ int OpenGLGraphics::ChoosePixelFormat(HDC device_context)
 	int result = _wglChoosePixelFormatARB(device_context, attribute_list, NULL, 1, &pixel_format, &format_count);
 	if (!result)
 	{
-		// ASSERT(false);
+		DBG_ASSERT_FAIL("Can't find appropriate pixel format.");
 	}
 
 	return pixel_format;

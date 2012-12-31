@@ -32,7 +32,7 @@ void ConfigVar::AssignValue(const Json::Value &config_value)
 		// todo: amcgee - hook up more complicated props here
 		break;
 	default:
-		// ASSERT( false );
+		DBG_ASSERT_FAIL("Unknown ConfigVar Type");
 		break;
 	}
 }

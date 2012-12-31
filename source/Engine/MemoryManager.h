@@ -36,7 +36,6 @@ private:
 	static MemoryManager* _memory_manager;
 
 	std::map<const void*, MemoryAllocation> _allocations;
-	bool _ignore_allocations;
 };
 
 #define ENABLE_MEMORY_MANAGER
@@ -57,6 +56,7 @@ private:
 		MemoryManager::GetMemoryManager()->RemoveAllocation(ptr);
 		free(ptr);
 	}
+
 	inline void operator delete(void* ptr)
 	{
 		MemoryManager::GetMemoryManager()->RemoveAllocation(ptr);

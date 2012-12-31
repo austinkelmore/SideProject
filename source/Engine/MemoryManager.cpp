@@ -23,7 +23,7 @@ MemoryManager::~MemoryManager()
 
 void MemoryManager::CreateMemoryManager()
 {
-	// ASSERT(_memory_manager == NULL);
+	DBG_ASSERT(_memory_manager == NULL);
 
 	static MemoryManager internal_mem_manager;
 	_memory_manager = &internal_mem_manager;
@@ -31,7 +31,7 @@ void MemoryManager::CreateMemoryManager()
 
 MemoryManager* MemoryManager::GetMemoryManager()
 {
-	// ASSERT(_memory_manager);
+	DBG_ASSERT(_memory_manager);
 
 	return _memory_manager;
 }

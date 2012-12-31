@@ -66,7 +66,7 @@ void Logging::EnableChannel(const LogChannel logChannel)
 	// make sure we don't have it in the list already
 	for (unsigned int i = 0; i < m_disabledChannels.size(); ++i)
 	{
-		// ASSERT(m_disabledChannels[i] != logChannel);
+		DBG_ASSERT(m_disabledChannels[i] != logChannel);
 	}
 
 	m_disabledChannels.push_back(logChannel);

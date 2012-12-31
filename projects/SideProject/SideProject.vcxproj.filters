@@ -120,5 +120,8 @@
     <ClCompile Include="..\..\source\Engine\MemoryManager.cpp">
       <Filter>Engine\Memory</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\Engine\BasicMacros.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
