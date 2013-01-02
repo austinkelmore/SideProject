@@ -19,18 +19,23 @@ Vector3::Vector3(const float x1, const float y1, const float z1)
 	// do nothing
 }
 
-Vector3 Vector3::operator*(const float mult) const
+Vector3 Vector3::operator*(const float scalar) const
 {
-	return Vector3(x * mult, y * mult, z * mult);
+	return Vector3(x * scalar, y * scalar, z * scalar);
 }
 
-Vector3 Vector3::operator*=(const float mult)
+Vector3 Vector3::operator*=(const float scalar)
 {
-	x *= mult;
-	y *= mult;
-	z *= mult;
+	x *= scalar;
+	y *= scalar;
+	z *= scalar;
 
 	return *this;
+}
+
+Vector3 operator*(const float scalar, const Vector3& rhs)
+{
+	return rhs * scalar;
 }
 
 Vector3 Vector3::operator/(const float divisor) const
@@ -75,6 +80,12 @@ Vector3 Vector3::operator-=(const Vector3& rhs)
 	return *this;
 }
 
+Vector3 Vector3::operator-() const
+{
+	return Vector3(-x, -y, -z);
+}
+
+// dot product
 float Vector3::operator*(const Vector3& rhs) const
 {
 	return (x * rhs.x + y * rhs.y + z * rhs.z);
@@ -103,20 +114,24 @@ float Vector3::LengthSqrd() const
 
 void Vector3::Normalize()
 {
-	float length_squared = LengthSqrd();
+	float length = Length();
 
 	// ASSERT(length_squared != 0.f);
+
+	float inv_length = 1.f / length;
 	
-	x /= length_squared;
-	y /= length_squared;
-	z /= length_squared;
+	x *= inv_length;
+	y *= inv_length;
+	z *= inv_length;
 }
 
 Vector3 Vector3::Normal() const
 {
-	float length_squared = LengthSqrd();
+	float length = Length();
 
 	// ASSERT(length_squared != 0.f);
 
-	return Vector3(x / length_squared, y / length_squared, z / length_squared);
+	float inv_length = 1.f / length;
+
+	return Vector3(x * inv_length, y * inv_length, z * inv_length);
 }

@@ -90,6 +90,9 @@
     <ClInclude Include="..\..\source\Engine\Vector.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\source\Engine\Matrix.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\main.cpp" />
@@ -127,6 +130,9 @@
       <Filter>Engine\Memory</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\Engine\Vector.cpp">
+      <Filter>Engine\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\Matrix.cpp">
       <Filter>Engine\Math</Filter>
     </ClCompile>
   </ItemGroup>

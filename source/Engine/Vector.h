@@ -8,8 +8,10 @@ public:
 	Vector3(const Vector3& rhs);
 	Vector3(const float x, const float y, const float z);
 
-	Vector3 operator*(const float mult) const;
-	Vector3 operator*=(const float mult);
+	Vector3 operator*(const float scalar) const;
+	Vector3 operator*=(const float scalar);
+	friend Vector3 operator*(const float scalar, const Vector3& rhs);
+
 	Vector3 operator/(const float divisor) const;
 	Vector3 operator/=(const float divisor);
 
@@ -17,9 +19,10 @@ public:
 	Vector3 operator+=(const Vector3& rhs);
 	Vector3 operator-(const Vector3& rhs) const;
 	Vector3 operator-=(const Vector3& rhs);
+	Vector3 operator-() const;
 
-	float operator*(const Vector3 rhs) const;
-	Vector3 operator|(const Vector3 rhs) const;
+	float operator*(const Vector3& rhs) const;
+	Vector3 operator|(const Vector3& rhs) const;
 
 	float Length() const;
 	float LengthSqrd() const;

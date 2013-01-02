@@ -104,6 +104,7 @@
     <ClInclude Include="..\..\source\Engine\IGraphics.h" />
     <ClInclude Include="..\..\source\Engine\JSONConfig.h" />
     <ClInclude Include="..\..\source\Engine\Logging.h" />
+    <ClInclude Include="..\..\source\Engine\Matrix.h" />
     <ClInclude Include="..\..\source\Engine\MemoryManager.h" />
     <ClInclude Include="..\..\source\Engine\OpenGLGraphics.h" />
     <ClInclude Include="..\..\source\Engine\Vector.h" />
@@ -118,6 +119,7 @@
     <ClCompile Include="..\..\source\Engine\IPlatform.cpp" />
     <ClCompile Include="..\..\source\Engine\JSONConfig.cpp" />
     <ClCompile Include="..\..\source\Engine\Logging.cpp" />
+    <ClCompile Include="..\..\source\Engine\Matrix.cpp" />
     <ClCompile Include="..\..\source\Engine\MemoryManager.cpp" />
     <ClCompile Include="..\..\source\Engine\OpenGLGraphics.cpp" />
     <ClCompile Include="..\..\source\Engine\Vector.cpp" />
