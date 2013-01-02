@@ -135,5 +135,8 @@
     <ClCompile Include="..\..\source\Engine\Matrix.cpp">
       <Filter>Engine\Math</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\Engine\BasicMacros.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -9,7 +9,7 @@ static LRESULT CALLBACK WindowsMessageHandler(HWND hwnd, UINT umessage, WPARAM w
 	UNUSED_VAR(hwnd);
 	UNUSED_VAR(wparam);
 	UNUSED_VAR(lparam);
-	// ASSERT(g_platform);
+	DBG_ASSERT(g_platform);
 	switch(umessage)
 	{
 		// Check if the window is being closed or destroyed.
@@ -49,7 +49,7 @@ IPlatform* CreatePlatform()
 
 	g_config->DebugPrintJSONConfigs();
 
-	//ASSERT( g_platform = NULL );
+	DBG_ASSERT(g_platform == NULL);
 	g_platform = new WindowsPlatform();
 
 	return g_platform;
@@ -98,7 +98,7 @@ bool WindowsPlatform::Init(int argc, char** argv)
 	// do the correct initialization based off of what we're doing (defaulting to OpenGL)
 	if (GetProps()->Renderer == "directx")
 	{
-		// ASSERT(false);
+		DBG_ASSERT_FAIL("I haven't created the direct x part of the renderer yet.");
 	}
 	else
 	{

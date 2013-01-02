@@ -5,15 +5,16 @@
 
 enum LogChannel
 {
-	LOG_UI = 0,
+	LOG_Assert = 0,
+	LOG_Config,
+	LOG_FileIO,
 	LOG_Gameplay,
 	LOG_Graphics,
-	LOG_Physics,
 	LOG_Input,
-	LOG_FileIO,
 	LOG_Network,
+	LOG_Physics,
 	LOG_Platform,
-	LOG_Config
+	LOG_UI,
 };
 
 enum LogTarget
