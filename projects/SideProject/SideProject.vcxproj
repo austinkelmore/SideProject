@@ -99,7 +99,9 @@
     <ClInclude Include="..\..\external\nowide\nowide\fstream.h" />
     <ClInclude Include="..\..\external\nowide\nowide\streambuf.h" />
     <ClInclude Include="..\..\source\Engine\BasicMacros.h" />
+    <ClInclude Include="..\..\source\Engine\Camera.h" />
     <ClInclude Include="..\..\source\Engine\DirectXGraphics.h" />
+    <ClInclude Include="..\..\source\Engine\FileIO.h" />
     <ClInclude Include="..\..\source\Engine\IPlatform.h" />
     <ClInclude Include="..\..\source\Engine\IGraphics.h" />
     <ClInclude Include="..\..\source\Engine\JSONConfig.h" />
@@ -116,7 +118,9 @@
     <ClCompile Include="..\..\external\nowide\src\convert.cpp" />
     <ClCompile Include="..\..\external\nowide\src\streambuf.cpp" />
     <ClCompile Include="..\..\source\Engine\BasicMacros.cpp" />
+    <ClCompile Include="..\..\source\Engine\Camera.cpp" />
     <ClCompile Include="..\..\source\Engine\DirectXGraphics.cpp" />
+    <ClCompile Include="..\..\source\Engine\FileIO.cpp" />
     <ClCompile Include="..\..\source\Engine\IPlatform.cpp" />
     <ClCompile Include="..\..\source\Engine\JSONConfig.cpp" />
     <ClCompile Include="..\..\source\Engine\Logging.cpp" />

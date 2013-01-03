@@ -1,16 +1,11 @@
  
 #include "JSONConfig.h"
 #include "Logging.h"
+#include "FileIO.h"
+#include <nowide/convert.h>
 #include <fstream>
 #include <iostream>
 #include <algorithm>
-
-#ifdef WIN32
-	#include <windows.h>
-	#include <stdlib.h>
-	#include <stdio.h>
-	#include <tchar.h>
-#endif // WIN32
 
 JSONConfig* g_config = NULL;
 
@@ -37,17 +32,6 @@ void ConfigVar::AssignValue(const Json::Value &config_value)
 	}
 }
 
-JSONConfig* JSONConfig::GetConfigManager()
-{
-	if (g_config)
-		return g_config;
-	else
-	{
-		g_config = new JSONConfig();
-		return g_config;
-	}
-}
-
 JSONConfig::JSONConfig()
 {
 	_folder_change_notification = NULL;
@@ -55,9 +39,7 @@ JSONConfig::JSONConfig()
 
 JSONConfig::~JSONConfig()
 {
-#ifdef WIN32
-	FindCloseChangeNotification(_folder_change_notification);
-#endif // WIN32
+	UnwatchFolder(_folder_change_notification);
 
 	// go through and delete all of the configs we created
 	for (tPropsToDataMap::iterator config = _props_to_data_map.begin(); config != _props_to_data_map.end(); ++config)
@@ -69,81 +51,48 @@ JSONConfig::~JSONConfig()
 void JSONConfig::ReadConfigFolder(const std::string &folder_path)
 {
 	_folder_path = folder_path;
+
 	// hook up the ability to monitor the file for changes
-#ifdef WIN32
-	DWORD flags = FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_FILE_NAME;
-	_folder_change_notification = FindFirstChangeNotificationW(nowide::convert(_folder_path).c_str(), false, flags);
-	if (_folder_change_notification == INVALID_HANDLE_VALUE)
-	{
-		_folder_change_notification = NULL;
+	if (!WatchFolder(folder_path.c_str(), _folder_change_notification))
 		Logging::Log(LOG_Config, "Error trying to watch the configs directory: %d", GetLastError());
-	}
-#endif // WIN32
 
 	ParseConfigs();
 }
 
 void JSONConfig::ParseConfigs()
 {
-#ifdef WIN32
-	WIN32_FIND_DATA find_file_data;
-	HANDLE find_handle;
+	PrevFileHandle prev_handle = NULL;
+	std::string file_path;
 
-	// filter only the JSON files
-	std::string name(_folder_path);
-	name += "\\*.json";
-
-	// get our first file
-	find_handle = FindFirstFileW(nowide::convert(name).c_str(), &find_file_data);
-	if (find_handle != INVALID_HANDLE_VALUE)
+	do
 	{
-		// keep going until we run out of files
-		do 
+		file_path = FindFileInFolder(_folder_path.c_str(), prev_handle, "*.json");
+		if (!file_path.empty())
 		{
-			std::string filePath(_folder_path);
-			filePath += '\\';
-			filePath += nowide::convert(find_file_data.cFileName);
-
 			Json::Reader reader;
 
-			_config_files.push_back(filePath);
-			std::ifstream configFile(filePath, ifstream::in);
-			bool successful = reader.parse(configFile, _config_files.back()._root_value);
-			configFile.close();
+			_config_files.push_back(file_path);
 
-			if (!successful)
-			{
+			// todo: amcgee - i don't like how JSONConfig interacts with the files, change this
+			std::ifstream configFile(file_path, ifstream::in);
+
+			if (!reader.parse(configFile, _config_files.back()._root_value))
 				Logging::Log(LOG_Config, "Failed to parse configuration: %s\n", reader.getFormattedErrorMessages().c_str());
-			}
-		} while(FindNextFileW(find_handle, &find_file_data) != 0);
 
-		FindClose(find_handle);
-	}
-#endif // WIN32
+			configFile.close();
+		}
+	} while(!file_path.empty());
 }
 
 void JSONConfig::CheckForConfigFolderChanges()
 {
-#ifdef WIN32
-	// tell this not to wait and just return right away
-	DWORD wait_value = WaitForSingleObject(_folder_change_notification, 0);
-	if (wait_value == WAIT_OBJECT_0)
+	if (CheckForFolderChanges(_folder_change_notification))
 	{
 		// clear out the configs and then reparse them
 		_config_files.clear();
 		ParseConfigs();
 		LinkValuesToVariables();
-
-		// eat all of the rest of the notifications
-		// sometimes multiple are sent for the same save operation
-		// we don't need to reparse on them because we JUST did it
-		do 
-		{
-			FindNextChangeNotification(_folder_change_notification);
-			wait_value = WaitForSingleObject(_folder_change_notification, 0);
-		} while (wait_value == WAIT_OBJECT_0);
 	}
-#endif // WIN32
 }
 
 void JSONConfig::DebugPrintJSONConfigs()

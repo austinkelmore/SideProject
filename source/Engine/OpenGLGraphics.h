@@ -36,6 +36,10 @@ private:
 #endif // WIN32
 	HGLRC _rendering_context;
 
+	unsigned int _shader_program;
+	unsigned int _vertex_shader;
+	unsigned int _fragment_shader;
+
 	// extensions
 	PFNWGLCHOOSEPIXELFORMATARBPROC _wglChoosePixelFormatARB;
 	PFNWGLCREATECONTEXTATTRIBSARBPROC _wglCreateContextAttribsARB;

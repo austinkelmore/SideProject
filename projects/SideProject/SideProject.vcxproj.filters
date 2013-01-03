@@ -34,6 +34,15 @@
     <Filter Include="Engine\Math">
       <UniqueIdentifier>{dab56d89-5f09-4d28-8be5-b7a20eb272b8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Time">
+      <UniqueIdentifier>{b6235e26-e1d0-4ff9-8a6a-ec5e3f38ed3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Camera">
+      <UniqueIdentifier>{38191898-ccaf-4c54-b192-c3c1dfaba7a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\IO">
+      <UniqueIdentifier>{26ff7b7c-c688-4cf8-9d1e-ad9e307035b4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\external\jsoncpp\json\json.h">
@@ -93,6 +102,12 @@
     <ClInclude Include="..\..\source\Engine\Matrix.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\source\Engine\Camera.h">
+      <Filter>Engine\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\FileIO.h">
+      <Filter>Engine\IO</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\main.cpp" />
@@ -137,6 +152,12 @@
     </ClCompile>
     <ClCompile Include="..\..\source\Engine\BasicMacros.cpp">
       <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\Camera.cpp">
+      <Filter>Engine\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\FileIO.cpp">
+      <Filter>Engine\IO</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

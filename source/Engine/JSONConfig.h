@@ -2,12 +2,9 @@
 #pragma once
 
 #include "jsoncpp/json/json.h"
-#include <nowide/convert.h>
 #include <string>
-
-#ifdef WIN32
-	#include <windows.h>
-#endif // WIN32
+#include "BasicMacros.h"
+#include "FileIO.h"
 
 class BaseProps
 {
@@ -37,7 +34,8 @@ xClassName##::##xConfigName##Props* xClassName##::GetProps() \
 	if (!s_##xConfigName##Props) \
 	{ \
 		s_##xConfigName##Props = new xConfigName##Props(); \
-		JSONConfig::GetConfigManager()->SetupProps(s_##xConfigName##Props); \
+		DBG_ASSERT_MSG(g_config, "Config Manager not created."); \
+		g_config->SetupProps(s_##xConfigName##Props); \
 	} \
 	return s_##xConfigName##Props; \
 } \
@@ -70,7 +68,7 @@ struct ConfigVar
 	std::string _config_name;
 	ConfigVarType _type;
 
-	void AssignValue( const Json::Value &config_value );
+	void AssignValue(const Json::Value &config_value);
 };
 
 typedef std::vector<ConfigVar> ConfigVarList;
@@ -96,8 +94,6 @@ typedef std::vector<ConfigFileData> tConfigFileVector;
 class JSONConfig
 {
 public:
-	static JSONConfig* GetConfigManager();
-
 	JSONConfig();
 	~JSONConfig();
 
@@ -120,9 +116,7 @@ private:
 	tPropsToDataMap _props_to_data_map;
 	std::string _folder_path;
 
-#ifdef WIN32
-	HANDLE _folder_change_notification;
-#endif // WIN32
+	FolderChangeNotificationHandle _folder_change_notification;
 
 	void InternalPrintValue(Json::Value &value, const std::string &path=".");
 	void LinkValuesToVariables();
