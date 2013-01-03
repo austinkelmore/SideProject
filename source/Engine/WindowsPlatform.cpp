@@ -41,16 +41,16 @@ IMPLEMENT_CONFIG(Platform, WindowsPlatform)
 
 IPlatform* CreatePlatform()
 {
-	// make sure g_config is initialized by calling GetConfigManager first
-	JSONConfig::GetConfigManager()->ReadConfigFolder("configs");
+	DBG_ASSERT(g_platform == NULL);
+	g_platform = new WindowsPlatform();
+
+	g_config = new JSONConfig();
+	g_config->ReadConfigFolder("configs");
 
 	// set up the logging second so that we have a report mechanism in case other things fail
 	g_log = new Logging();
 
 	g_config->DebugPrintJSONConfigs();
-
-	DBG_ASSERT(g_platform == NULL);
-	g_platform = new WindowsPlatform();
 
 	return g_platform;
 }
