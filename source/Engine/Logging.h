@@ -11,6 +11,7 @@ enum LogChannel
 	LOG_Gameplay,
 	LOG_Graphics,
 	LOG_Input,
+	LOG_Memory,
 	LOG_Network,
 	LOG_Physics,
 	LOG_Platform,

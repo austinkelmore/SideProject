@@ -2,24 +2,43 @@
 #include "FileIO.h"
 #include <nowide/convert.h>
 
-FileHandle LoadFile(const char* filename)
+bool LoadFile(const char* filename, void** out_data, int &out_size)
 {
-	return NULL;
+	DBG_ASSERT(filename);
+	DBG_ASSERT(out_data);
+
+#ifdef WIN32
+	FILE *file_stream = NULL;
+	if (_wfopen_s(&file_stream, nowide::convert(filename).c_str(), L"rb") == 0)
+	{
+		// find out how big the file is
+		fseek(file_stream, 0, SEEK_END);
+		out_size = ftell(file_stream);
+		fseek(file_stream, 0, SEEK_SET);
+
+		// create a buffer for the file and read in the data
+		char* file_data = new char[out_size];
+		size_t success = _fread_nolock(file_data, 1, out_size, file_stream);
+		DBG_ASSERT((int)success == out_size);
+
+		*out_data = file_data;
+		fclose(file_stream);
+
+		return true;
+	}
+#endif // WIN32
+
+	return false;
 }
 
-void CloseFile(FileHandle handle)
-{
-
-}
-
-bool WatchFolder(const char* folder_path, FolderChangeNotificationHandle &handle)
+bool WatchFolder(const char* folder_path, FolderChangeNotificationHandle &out_handle)
 {
 #ifdef WIN32
 	DWORD flags = FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_FILE_NAME;
-	handle = FindFirstChangeNotificationW(nowide::convert(folder_path).c_str(), false, flags);
-	if (handle == INVALID_HANDLE_VALUE)
+	out_handle = FindFirstChangeNotificationW(nowide::convert(folder_path).c_str(), false, flags);
+	if (out_handle == INVALID_HANDLE_VALUE)
 	{
-		handle = NULL;
+		out_handle = NULL;
 		return false;
 	}
 
@@ -56,7 +75,7 @@ void UnwatchFolder(const FolderChangeNotificationHandle handle)
 #endif // WIN32
 }
 
-std::string FindFileInFolder(const char* folder_path, PrevFileHandle &prev_handle, const char* file_wildcard)
+std::string FindFileInFolder(const char* folder_path, PrevFileHandle &out_prev_handle, const char* file_wildcard)
 {
 	std::string folder_wildcard(folder_path);
 	if (file_wildcard)
@@ -68,16 +87,16 @@ std::string FindFileInFolder(const char* folder_path, PrevFileHandle &prev_handl
 #ifdef WIN32
 	WIN32_FIND_DATA find_file_data;
 
-	if (prev_handle == NULL)
+	if (out_prev_handle == NULL)
 	{
 		// get our first file
-		prev_handle = FindFirstFileW(nowide::convert(folder_wildcard).c_str(), &find_file_data);
-		if (prev_handle == INVALID_HANDLE_VALUE)
+		out_prev_handle = FindFirstFileW(nowide::convert(folder_wildcard).c_str(), &find_file_data);
+		if (out_prev_handle == INVALID_HANDLE_VALUE)
 			return "";
 	}
-	else if (!FindNextFileW(prev_handle, &find_file_data))
+	else if (!FindNextFileW(out_prev_handle, &find_file_data))
 	{
-		FindClose(prev_handle);
+		FindClose(out_prev_handle);
 		return "";
 	}
 #endif // WIN32

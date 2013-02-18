@@ -41,23 +41,35 @@ private:
 #define ENABLE_MEMORY_MANAGER
 
 #ifdef ENABLE_MEMORY_MANAGER
-	inline void* operator new(unsigned int size, const char* file, const int line)
+	inline void* operator new(size_t size, const char* file, const int line)
+	{
+		void* ptr = malloc(size);
+		MemoryManager::GetMemoryManager()->AddAllocation(ptr, size, file, line);
+		return ptr;
+	}
+	inline void* operator new[](size_t size, const char* file, const int line)
 	{
 		void* ptr = malloc(size);
 		MemoryManager::GetMemoryManager()->AddAllocation(ptr, size, file, line);
 		return ptr;
 	}
 
-	inline void operator delete(void* ptr, const char* file, const int line)
+	inline void operator delete(void* ptr)
 	{
-		UNUSED_VAR(file);
-		UNUSED_VAR(line);
-
 		MemoryManager::GetMemoryManager()->RemoveAllocation(ptr);
 		free(ptr);
 	}
-
-	inline void operator delete(void* ptr)
+	inline void operator delete(void* ptr, const char*, const int) throw()
+	{
+		MemoryManager::GetMemoryManager()->RemoveAllocation(ptr);
+		free(ptr);
+	}
+	inline void operator delete[](void* ptr)
+	{
+		MemoryManager::GetMemoryManager()->RemoveAllocation(ptr);
+		free(ptr);
+	}
+	inline void operator delete[](void* ptr, const char*, const int) throw()
 	{
 		MemoryManager::GetMemoryManager()->RemoveAllocation(ptr);
 		free(ptr);

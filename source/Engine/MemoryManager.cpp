@@ -50,8 +50,15 @@ void MemoryManager::RemoveAllocation(const void* ptr)
 
 void MemoryManager::DebugOutputAllocations()
 {
-	for (std::map<const void*, MemoryAllocation>::iterator it = _allocations.begin(); it != _allocations.end(); ++it)
+	if (!_allocations.empty())
 	{
-		Logging::Log(LOG_Platform, "%s(%d): Memory Leak at 0x%p size: %d bytes\n", it->second._filename, it->second._line_number, it->first, it->second._size);
+		Logging::Log(LOG_Memory, "\n=== Memory leaks detected! ===\n");
+
+		for (std::map<const void*, MemoryAllocation>::iterator it = _allocations.begin(); it != _allocations.end(); ++it)
+		{
+			Logging::Log(LOG_Memory, "%s(%d): Memory Leak at 0x%p size: %d bytes\n", it->second._filename, it->second._line_number, it->first, it->second._size);
+		}
+
+		Logging::Log(LOG_Memory, "\n=== End Memory leaks ===\n");
 	}
 }

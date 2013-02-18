@@ -73,13 +73,16 @@ void JSONConfig::ParseConfigs()
 
 			_config_files.push_back(file_path);
 
-			// todo: amcgee - i don't like how JSONConfig interacts with the files, change this
-			std::ifstream configFile(file_path, ifstream::in);
+			// todo: amcgee - clean up the delete aspect of the file_stream, I don't like how this is done
+			char* file_stream = NULL;
+			int file_size;
+			if (LoadFile(file_path.c_str(), (void**)&file_stream, file_size))
+			{
+				if (!reader.parse(file_stream, file_stream + file_size, _config_files.back()._root_value))
+					Logging::Log(LOG_Config, "Failed to parse configuration: %s\n", reader.getFormattedErrorMessages().c_str());
 
-			if (!reader.parse(configFile, _config_files.back()._root_value))
-				Logging::Log(LOG_Config, "Failed to parse configuration: %s\n", reader.getFormattedErrorMessages().c_str());
-
-			configFile.close();
+				delete[] file_stream;
+			}
 		}
 	} while(!file_path.empty());
 }
