@@ -14,7 +14,7 @@ public:
 		bool Fullscreen;
 		int Width;
 		int Height;
-	DEFINE_CONFIG_END()
+	DEFINE_CONFIG_END
 
 	WindowsPlatform();
 	virtual ~WindowsPlatform();

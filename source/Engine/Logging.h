@@ -29,7 +29,8 @@ class Logging
 public:
 	DEFINE_CONFIG(Log)
 		int Flush_Frequency;
-	DEFINE_CONFIG_END()
+		bool Prepend_Group_Name;
+	DEFINE_CONFIG_END
 
 	Logging();
 	~Logging();
@@ -39,13 +40,14 @@ public:
 	void EnableChannel(const LogChannel logChannel);
 	void DisableChannel(const LogChannel logChannel);
 	bool IsChannelEnabled(const LogChannel logChannel) const;
+	const char* GetChannelString(const LogChannel logChannel) const;
 
 	int GetFlushCount() { return _current_flush_count; }
 	void SetFlushCount(const int flush_count) { _current_flush_count = flush_count; }
 
 private:
 	int _current_flush_count; // how long ago we last flushed
-	std::vector<LogChannel> m_disabledChannels;
+	std::vector<LogChannel> _disabledChannels;
 };
 
 extern Logging* g_log;

@@ -1,6 +1,7 @@
 {
 	"Log" :
 	{
-		"Flush_Frequency" : 10
+		"Flush_Frequency" : 10,
+		"Prepend_Group_Name" : true
 	}
 }

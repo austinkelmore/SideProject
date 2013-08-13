@@ -16,15 +16,16 @@ void ConfigVar::AssignValue(const Json::Value &config_value)
 	switch (_type)
 	{
 	case CONFIGVAR_Bool:
-		*_value_bool = config_value.get(_config_name, *_value_bool).asBool(); break;
+		*_value_bool = config_value.get(_name, *_value_bool).asBool(); break;
 	case CONFIGVAR_Int:
-		*_value_int = config_value.get(_config_name, *_value_int).asInt(); break;
+		*_value_int = config_value.get(_name, *_value_int).asInt(); break;
 	case CONFIGVAR_Float:
-		*_value_float = config_value.get(_config_name, *_value_float).asFloat(); break;
+		*_value_float = config_value.get(_name, *_value_float).asFloat(); break;
 	case CONFIGVAR_String:
-		*_value_string = config_value.get(_config_name, *_value_string).asString(); break;
-	case CONFIGVAR_Props:
-		// todo: amcgee - hook up more complicated props here
+		*_value_string = config_value.get(_name, *_value_string).asString(); break;
+	case CONFIGVAR_Config:
+		// todo: amcgee - hook up more complicated configs here
+		//SetupConfig()
 		break;
 	default:
 		DBG_ASSERT_FAIL("Unknown ConfigVar Type");
@@ -42,7 +43,7 @@ JSONConfig::~JSONConfig()
 	UnwatchFolder(_folder_change_notification);
 
 	// go through and delete all of the configs we created
-	for (tPropsToDataMap::iterator config = _props_to_data_map.begin(); config != _props_to_data_map.end(); ++config)
+	for (tConfigToDataMap::iterator config = _config_to_data_map.begin(); config != _config_to_data_map.end(); ++config)
 	{
 		delete config->first;
 	}
@@ -73,15 +74,14 @@ void JSONConfig::ParseConfigs()
 
 			_config_files.push_back(file_path);
 
-			// todo: amcgee - clean up the delete aspect of the file_stream, I don't like how this is done
 			char* file_stream = NULL;
 			int file_size;
-			if (LoadFile(file_path.c_str(), (void**)&file_stream, file_size))
+			if (LoadFile(file_path.c_str(), &file_stream, file_size))
 			{
-				if (!reader.parse(file_stream, file_stream + file_size, _config_files.back()._root_value))
+				if (!reader.parse(file_stream, file_stream + file_size, _config_files.back()._json_root))
 					Logging::Log(LOG_Config, "Failed to parse configuration: %s\n", reader.getFormattedErrorMessages().c_str());
 
-				delete[] file_stream;
+				CloseFile(file_stream);
 			}
 		}
 	} while(!file_path.empty());
@@ -102,61 +102,72 @@ void JSONConfig::DebugPrintJSONConfigs()
 {
 	for (tConfigFileVector::iterator configs = _config_files.begin(); configs != _config_files.end(); ++configs)
 	{
-		Logging::Log(LOG_Config, "Config File: %s\n", configs->_config_name.c_str());
-		InternalPrintValue(configs->_root_value);
+		Logging::Log(LOG_Config, "Config File: %s\n", configs->_file_name.c_str());
+		InternalPrintValue(configs->_json_root);
 	}
 }
 
 void JSONConfig::LinkValuesToVariables()
 {
-	for (tPropsToDataMap::iterator props = _props_to_data_map.begin(); props != _props_to_data_map.end(); ++props)
+	for (tConfigToDataMap::iterator config = _config_to_data_map.begin(); config != _config_to_data_map.end(); ++config)
 	{
-		for (tConfigFileVector::iterator configs = _config_files.begin(); configs != _config_files.end(); ++configs)
+		for (tConfigFileVector::iterator file = _config_files.begin(); file != _config_files.end(); ++file)
 		{
-			Json::Value props_values = configs->_root_value[props->second._props_name];
+			Json::Value json_values = file->_json_root[config->second._name];
 
-			PropsData &data = props->second;
-			for (unsigned i = 0; i < data._config_vars.size(); ++i)
+			ConfigData &data = config->second;
+			for (unsigned i = 0; i < data._vars.size(); ++i)
 			{
-				ConfigVar &var = data._config_vars[i];
-				if (props_values.isMember(var._config_name))
-					var.AssignValue(props_values);
+				ConfigVar &var = data._vars[i];
+				if (json_values.isMember(var._name))
+					var.AssignValue(json_values);
 			}
 		}
 	}
 }
 
-void JSONConfig::SetupProps(BaseProps *props)
+void JSONConfig::SetupConfig(BaseConfig *config)
 {
-	PropsData& propsData = _props_to_data_map[props];
+	ConfigData& config_data = _config_to_data_map[config];
 
-	propsData._props_name = props->GetName();
-	props->InitProps();
+	config_data._name = config->GetName();
+	config->InitConfig();
 
 	// read the config and set the values on the variables
-	for (tConfigFileVector::iterator configs = _config_files.begin(); configs != _config_files.end(); ++configs)
+	for (tConfigFileVector::iterator file = _config_files.begin(); file != _config_files.end(); ++file)
 	{
-		Json::Value props_values = configs->_root_value[propsData._props_name];
+		Json::Value json_values = file->_json_root[config_data._name];
+		SetupConfig(config_data, json_values);
+	}
+}
 
-		for (unsigned i = 0; i < propsData._config_vars.size(); ++i)
+void JSONConfig::SetupConfig(ConfigData& config_data, Json::Value json_values)
+{
+	for (unsigned i = 0; i < config_data._vars.size(); ++i)
+	{
+		ConfigVar &var = config_data._vars[i];
+		if (json_values.isMember(var._name))
 		{
-			ConfigVar &var = propsData._config_vars[i];
-			if (props_values.isMember(var._config_name))
-				var.AssignValue(props_values);
+			if (var._type != CONFIGVAR_Config)
+				var.AssignValue(json_values);
+			else
+			{
+				//ConfigData sub_config_data = _config_to_data_map[]
+			}
 		}
 	}
 }
 
-void JSONConfig::AddNewPropsVariable(BaseProps *props, const std::string &type_name, void* data, ConfigVarType data_type)
+void JSONConfig::AddNewConfigVariable(BaseConfig *config, const std::string &type_name, void* data, ConfigVarType data_type)
 {
 	ConfigVar temp;
-	temp._config_name = type_name;
+	temp._name = type_name;
 	temp._type = data_type;
 
-	// it doesn't matter which we use since it's a union an they're all pointers
+	// it doesn't matter which we use since it's a union and they're all pointers
 	temp._value_int = static_cast<int*>(data);
 
-	_props_to_data_map[props]._config_vars.push_back(temp);
+	_config_to_data_map[config]._vars.push_back(temp);
 }
 
 void JSONConfig::InternalPrintValue(Json::Value &value, const std::string &path/*="."*/)

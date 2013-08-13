@@ -11,7 +11,8 @@
 
 IMPLEMENT_CONFIG(Log, Logging)
 {
-	ADD_PROPS(int, Flush_Frequency, 15);
+	ADD_CONFIG_VAR(int, Flush_Frequency, 15);
+	ADD_CONFIG_VAR(bool, Prepend_Group_Name, true);
 }
 
 Logging* g_log = NULL;
@@ -38,12 +39,22 @@ void Logging::Log(LogChannel channel, const char *format, ...)
 
 	const unsigned int MAX_CHARS = 1023;
 	static char buffer[MAX_CHARS + 1];
+	int groupStringLength = 0;
 
 	va_list argList;
 	va_start( argList, format );
 
-	int chars_written = vsprintf_s(buffer, MAX_CHARS, format, argList);
-	buffer[chars_written] = '\0';
+	// we have to check to see if g_log is valid because it may not be yet
+	if (g_log)
+	{
+		if (g_log->GetConfig()->Prepend_Group_Name)
+		{
+			groupStringLength = sprintf_s(buffer, MAX_CHARS, "[%s] ", g_log->GetChannelString(channel));
+		}
+	}
+
+	int chars_written = vsprintf_s(buffer + groupStringLength, MAX_CHARS - groupStringLength, format, argList);
+	buffer[chars_written + groupStringLength] = '\0';
 
 #ifdef WIN32
 	OutputDebugStringW(nowide::convert(buffer).c_str());
@@ -53,7 +64,7 @@ void Logging::Log(LogChannel channel, const char *format, ...)
 	{
 		if (g_log->GetFlushCount() == 0)
 		{
-			g_log->SetFlushCount(g_log->GetProps()->Flush_Frequency);
+			g_log->SetFlushCount(g_log->GetConfig()->Flush_Frequency);
 			fflush(stdout);
 		}
 		else
@@ -64,21 +75,21 @@ void Logging::Log(LogChannel channel, const char *format, ...)
 void Logging::EnableChannel(const LogChannel logChannel)
 {
 	// make sure we don't have it in the list already
-	for (unsigned int i = 0; i < m_disabledChannels.size(); ++i)
+	for (unsigned int i = 0; i < _disabledChannels.size(); ++i)
 	{
-		DBG_ASSERT(m_disabledChannels[i] != logChannel);
+		DBG_ASSERT(_disabledChannels[i] != logChannel);
 	}
 
-	m_disabledChannels.push_back(logChannel);
+	_disabledChannels.push_back(logChannel);
 }
 
 void Logging::DisableChannel(const LogChannel logChannel)
 {
-	for (unsigned int i = 0; i < m_disabledChannels.size(); ++i)
+	for (unsigned int i = 0; i < _disabledChannels.size(); ++i)
 	{
-		if (m_disabledChannels[i] == logChannel)
+		if (_disabledChannels[i] == logChannel)
 		{
-			m_disabledChannels.erase(m_disabledChannels.begin()+i);
+			_disabledChannels.erase(_disabledChannels.begin()+i);
 			return;
 		}
 	}
@@ -86,11 +97,21 @@ void Logging::DisableChannel(const LogChannel logChannel)
 
 bool Logging::IsChannelEnabled(const LogChannel logChannel) const
 {
-	for (unsigned int i = 0; i < m_disabledChannels.size(); ++i)
+	for (unsigned int i = 0; i < _disabledChannels.size(); ++i)
 	{
-		if (m_disabledChannels[i] == logChannel)
+		if (_disabledChannels[i] == logChannel)
 			return false;
 	}
 
 	return true;
+}
+
+const char* Logging::GetChannelString(const LogChannel logChannel) const
+{
+	char* channelStrings[] = { "Assert", "Config", "FileIO", "Gameplay",
+							   "Graphics", "Input", "Memory", "Network",
+							   "Physics", "Platform", "UI" };
+
+	DBG_ASSERT(0 <= logChannel && logChannel < sizeof(channelStrings)/sizeof(channelStrings[0]));
+	return channelStrings[logChannel];
 }

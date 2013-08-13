@@ -2,7 +2,7 @@
 #include "FileIO.h"
 #include <nowide/convert.h>
 
-bool LoadFile(const char* filename, void** out_data, int &out_size)
+bool LoadFile(const char* filename, char** out_data, int &out_size)
 {
 	DBG_ASSERT(filename);
 	DBG_ASSERT(out_data);
@@ -29,6 +29,12 @@ bool LoadFile(const char* filename, void** out_data, int &out_size)
 #endif // WIN32
 
 	return false;
+}
+
+void CloseFile(const char* filename)
+{
+	delete[] filename;
+	filename = NULL;
 }
 
 bool WatchFolder(const char* folder_path, FolderChangeNotificationHandle &out_handle)

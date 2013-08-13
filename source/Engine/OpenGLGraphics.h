@@ -23,6 +23,9 @@ public:
 	virtual void Update();
 	virtual void Destroy();
 
+	bool SetupShaders();
+	bool CompileShader(const std::string& shader_path, const GLenum shader_type, unsigned int& o_shader);
+
 #ifdef WIN32
 	bool PreInitializeWindowsOpenGL(HWND window);
 #endif // WIN32
@@ -36,9 +39,15 @@ private:
 #endif // WIN32
 	HGLRC _rendering_context;
 
+	// shader information
 	unsigned int _shader_program;
 	unsigned int _vertex_shader;
 	unsigned int _fragment_shader;
+
+	// vertex buffer information
+	unsigned int _vertex_array;
+	unsigned int _vertex_buffer;
+	unsigned int _index_buffer;
 
 	// extensions
 	PFNWGLCHOOSEPIXELFORMATARBPROC _wglChoosePixelFormatARB;
@@ -52,6 +61,7 @@ private:
 	PFNGLCOMPILESHADERPROC _glCompileShader;
 	PFNGLCREATEPROGRAMPROC _glCreateProgram;
 	PFNGLCREATESHADERPROC _glCreateShader;
+	PFNGLDEBUGMESSAGECALLBACKARBPROC _glDebugMessageCallbackARB;
 	PFNGLDELETEBUFFERSPROC _glDeleteBuffers;
 	PFNGLDELETEPROGRAMPROC _glDeleteProgram;
 	PFNGLDELETESHADERPROC _glDeleteShader;

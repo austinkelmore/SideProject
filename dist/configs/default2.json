@@ -3,7 +3,7 @@
 	{
 		"Renderer" : "opengl",
 		"Fullscreen" : false,
-		"Width" : 640,
-		"Height" : 480
+		"Width" : 500,
+		"Height" : 500
 	}
 }

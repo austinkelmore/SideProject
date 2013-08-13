@@ -33,10 +33,10 @@ static LRESULT CALLBACK WindowsMessageHandler(HWND hwnd, UINT umessage, WPARAM w
 
 IMPLEMENT_CONFIG(Platform, WindowsPlatform)
 {
-	ADD_PROPS(std::string, Renderer, "opengl");
-	ADD_PROPS(bool, Fullscreen, false);
-	ADD_PROPS(int, Width, 200);
-	ADD_PROPS(int, Height, 200);
+	ADD_CONFIG_VAR(std::string, Renderer, "opengl");
+	ADD_CONFIG_VAR(bool, Fullscreen, false);
+	ADD_CONFIG_VAR(int, Width, 200);
+	ADD_CONFIG_VAR(int, Height, 200);
 }
 
 IPlatform* CreatePlatform()
@@ -96,7 +96,7 @@ bool WindowsPlatform::Init(int argc, char** argv)
 	RegisterClassEx(&_window_class);
 
 	// do the correct initialization based off of what we're doing (defaulting to OpenGL)
-	if (GetProps()->Renderer == "directx")
+	if (GetConfig()->Renderer == "directx")
 	{
 		DBG_ASSERT_FAIL("I haven't created the direct x part of the renderer yet.");
 	}
@@ -105,7 +105,7 @@ bool WindowsPlatform::Init(int argc, char** argv)
 		_ignore_window_messages = true;
 		_window = CreateWindowEx(WS_EX_APPWINDOW, app_name, app_name,
 			WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-			200, 200, GetProps()->Width, GetProps()->Height,
+			200, 200, GetConfig()->Width, GetConfig()->Height,
 			NULL, NULL, _instance, NULL);
 
 		if (_window == NULL)
@@ -126,12 +126,12 @@ bool WindowsPlatform::Init(int argc, char** argv)
 	}
 
 	DEVMODE dmScreenSettings;
-	if (GetProps()->Fullscreen)
+	if (GetConfig()->Fullscreen)
 	{
 		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
 		dmScreenSettings.dmSize       = sizeof(dmScreenSettings);
-		dmScreenSettings.dmPelsWidth  = (unsigned long)GetProps()->Width;
-		dmScreenSettings.dmPelsHeight = (unsigned long)GetProps()->Height;
+		dmScreenSettings.dmPelsWidth  = (unsigned long)GetConfig()->Width;
+		dmScreenSettings.dmPelsHeight = (unsigned long)GetConfig()->Height;
 		dmScreenSettings.dmBitsPerPel = 32;
 		dmScreenSettings.dmFields     = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
@@ -141,13 +141,14 @@ bool WindowsPlatform::Init(int argc, char** argv)
 	// create the real window
 	_window = CreateWindowEx(WS_EX_APPWINDOW, app_name, app_name,
 							WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-							200, 200, GetProps()->Width, GetProps()->Height,
+							200, 200, GetConfig()->Width, GetConfig()->Height,
 							NULL, NULL, _instance, NULL);
 
 	if (_window == NULL)
 		return false;
 
-	_graphics_renderer->Init();
+	if(!_graphics_renderer->Init())
+		return false;
 
 	ShowWindow(_window, SW_SHOW);
 	SetForegroundWindow(_window);
@@ -158,7 +159,7 @@ bool WindowsPlatform::Init(int argc, char** argv)
 
 void WindowsPlatform::Destroy()
 {
-	if(GetProps()->Fullscreen)
+	if(GetConfig()->Fullscreen)
 		ChangeDisplaySettings(NULL, 0);
 
 	// delete the rendering system first
@@ -191,6 +192,8 @@ void WindowsPlatform::Update()
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+
+	_graphics_renderer->Update();
 }
 
 HDC WindowsPlatform::GetDC() const

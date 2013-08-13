@@ -6,44 +6,44 @@
 #include "BasicMacros.h"
 #include "FileIO.h"
 
-class BaseProps
+class BaseConfig
 {
 public:
-	virtual ~BaseProps() {}
+	virtual ~BaseConfig() {}
 	virtual char* GetName() = 0;
-	virtual void InitProps() = 0;
+	virtual void InitConfig() = 0;
 };
 
 #define DEFINE_CONFIG(xConfigName) \
-	class xConfigName##Props; \
-	xConfigName##Props* GetProps(); \
-	class xConfigName##Props : public BaseProps \
+	class xConfigName##Config; \
+	xConfigName##Config* GetConfig(); \
+	class xConfigName##Config : public BaseConfig \
 	{ \
 	public: \
-		virtual ~xConfigName##Props() {} \
+		virtual ~xConfigName##Config() {} \
 		virtual char* GetName() { return #xConfigName; } \
-		virtual void InitProps();
+		virtual void InitConfig();
 
-#define DEFINE_CONFIG_END() \
+#define DEFINE_CONFIG_END \
 	};
 
 #define IMPLEMENT_CONFIG(xConfigName, xClassName) \
-xClassName##::##xConfigName##Props* xClassName##::GetProps() \
+xClassName##::##xConfigName##Config* xClassName##::GetConfig() \
 { \
-	static xConfigName##Props* s_##xConfigName##Props = NULL; \
-	if (!s_##xConfigName##Props) \
+	static xConfigName##Config* s_##xConfigName##Config = NULL; \
+	if (!s_##xConfigName##Config) \
 	{ \
-		s_##xConfigName##Props = new xConfigName##Props(); \
+		s_##xConfigName##Config = new xConfigName##Config(); \
 		DBG_ASSERT_MSG(g_config, "Config Manager not created."); \
-		g_config->SetupProps(s_##xConfigName##Props); \
+		g_config->SetupConfig(s_##xConfigName##Config); \
 	} \
-	return s_##xConfigName##Props; \
+	return s_##xConfigName##Config; \
 } \
-void xClassName##::##xConfigName##Props::InitProps()
+void xClassName##::##xConfigName##Config::InitConfig()
 
-#define ADD_PROPS( xType, xVarName, xDefaultValue ) \
+#define ADD_CONFIG_VAR(xType, xVarName, xDefaultValue) \
 	xVarName = xDefaultValue; \
-	g_config->AddNewPropsVariable(this, #xVarName, &xVarName, g_config->GetType<xType>())
+	g_config->AddNewConfigVariable(this, #xVarName, &xVarName, g_config->GetType<xType>())
 
 enum ConfigVarType
 {
@@ -51,7 +51,7 @@ enum ConfigVarType
 	CONFIGVAR_Int,
 	CONFIGVAR_Float,
 	CONFIGVAR_String,
-	CONFIGVAR_Props
+	CONFIGVAR_Config
 };
 
 struct ConfigVar
@@ -62,33 +62,31 @@ struct ConfigVar
 		int *_value_int;
 		float *_value_float;
 		std::string *_value_string;
-		BaseProps *_value_props;
+		BaseConfig *_value_config;
 	};
 
-	std::string _config_name;
+	std::string _name;
 	ConfigVarType _type;
 
-	void AssignValue(const Json::Value &config_value);
+	void AssignValue(const Json::Value &json_value);
 };
 
-typedef std::vector<ConfigVar> ConfigVarList;
-
-struct PropsData
+struct ConfigData
 {
-	ConfigVarList _config_vars;
-	std::string _props_name;
+	std::vector<ConfigVar> _vars;
+	std::string _name;
 };
 
 struct ConfigFileData
 {
 	ConfigFileData() {}
-	ConfigFileData(const std::string &name) : _config_name(name) {}
+	ConfigFileData(const std::string &file_name) : _file_name(file_name) {}
 
-	std::string _config_name;
-	Json::Value _root_value;
+	std::string _file_name;
+	Json::Value _json_root;
 };
 
-typedef std::map<BaseProps*, PropsData> tPropsToDataMap;
+typedef std::map<BaseConfig*, ConfigData> tConfigToDataMap;
 typedef std::vector<ConfigFileData> tConfigFileVector;
 
 class JSONConfig
@@ -102,10 +100,11 @@ public:
 
 	void DebugPrintJSONConfigs();
 
-	void AddNewPropsVariable(BaseProps *props, const std::string &type_name, void* data, ConfigVarType data_type);
-	void SetupProps(BaseProps *props);
+	void AddNewConfigVariable(BaseConfig *config, const std::string &type_name, void* data, ConfigVarType data_type);
+	void SetupConfig(BaseConfig *config);
+	void SetupConfig(ConfigData& config_data, Json::Value json_values);
 
-	template <class T> ConfigVarType GetType() { return CONFIGVAR_Props; }
+	template <class T> ConfigVarType GetType() { return CONFIGVAR_Config; }
 	template <> ConfigVarType GetType<bool>() { return CONFIGVAR_Bool; }
 	template <> ConfigVarType GetType<int>() { return CONFIGVAR_Int; }
 	template <> ConfigVarType GetType<float>() { return CONFIGVAR_Float; }
@@ -113,7 +112,7 @@ public:
 
 private:
 	tConfigFileVector _config_files;
-	tPropsToDataMap _props_to_data_map;
+	tConfigToDataMap _config_to_data_map;
 	std::string _folder_path;
 
 	FolderChangeNotificationHandle _folder_change_notification;

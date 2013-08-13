@@ -60,6 +60,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <ForcedIncludeFiles>$(SolutionDir)..\..\source\engine\MemoryManager.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -102,6 +103,7 @@
     <ClInclude Include="..\..\source\Engine\Camera.h" />
     <ClInclude Include="..\..\source\Engine\DirectXGraphics.h" />
     <ClInclude Include="..\..\source\Engine\FileIO.h" />
+    <ClInclude Include="..\..\source\Engine\Image.h" />
     <ClInclude Include="..\..\source\Engine\IPlatform.h" />
     <ClInclude Include="..\..\source\Engine\IGraphics.h" />
     <ClInclude Include="..\..\source\Engine\JSONConfig.h" />
@@ -109,6 +111,7 @@
     <ClInclude Include="..\..\source\Engine\Matrix.h" />
     <ClInclude Include="..\..\source\Engine\MemoryManager.h" />
     <ClInclude Include="..\..\source\Engine\OpenGLGraphics.h" />
+    <ClInclude Include="..\..\source\Engine\Shader.h" />
     <ClInclude Include="..\..\source\Engine\Vector.h" />
     <ClInclude Include="..\..\source\Engine\WindowsPlatform.h" />
     <ClInclude Include="..\..\source\Engine\Win32Input.h" />
@@ -121,16 +124,22 @@
     <ClCompile Include="..\..\source\Engine\Camera.cpp" />
     <ClCompile Include="..\..\source\Engine\DirectXGraphics.cpp" />
     <ClCompile Include="..\..\source\Engine\FileIO.cpp" />
+    <ClCompile Include="..\..\source\Engine\Image.cpp" />
     <ClCompile Include="..\..\source\Engine\IPlatform.cpp" />
     <ClCompile Include="..\..\source\Engine\JSONConfig.cpp" />
     <ClCompile Include="..\..\source\Engine\Logging.cpp" />
     <ClCompile Include="..\..\source\Engine\Matrix.cpp" />
     <ClCompile Include="..\..\source\Engine\MemoryManager.cpp" />
     <ClCompile Include="..\..\source\Engine\OpenGLGraphics.cpp" />
+    <ClCompile Include="..\..\source\Engine\Shader.cpp" />
     <ClCompile Include="..\..\source\Engine\Vector.cpp" />
     <ClCompile Include="..\..\source\Engine\WindowsPlatform.cpp" />
     <ClCompile Include="..\..\source\Engine\Win32Input.cpp" />
     <ClCompile Include="..\..\source\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\dist\shaders\Texture.frag" />
+    <None Include="..\..\dist\shaders\Texture.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
