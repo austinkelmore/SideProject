@@ -24,13 +24,14 @@ enum LogTarget
 	LOGTARGET_FILE
 };
 
+DEFINE_CONFIG(LogConfig, Log)
+	int Flush_Frequency;
+	bool Prepend_Group_Name;
+DEFINE_CONFIG_END
+
 class Logging
 {
 public:
-	DEFINE_CONFIG(Log)
-		int Flush_Frequency;
-		bool Prepend_Group_Name;
-	DEFINE_CONFIG_END
 
 	Logging();
 	~Logging();
@@ -46,6 +47,7 @@ public:
 	void SetFlushCount(const int flush_count) { _current_flush_count = flush_count; }
 
 private:
+	LogConfig* _log_config;
 	int _current_flush_count; // how long ago we last flushed
 	std::vector<LogChannel> _disabledChannels;
 };

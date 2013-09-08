@@ -11,18 +11,18 @@ JSONConfig* g_config = NULL;
 
 using std::ifstream;
 
-void ConfigVar::AssignValue(const Json::Value &config_value)
+void ConfigVar::AssignValue(const Json::Value &json_value)
 {
 	switch (_type)
 	{
 	case CONFIGVAR_Bool:
-		*_value_bool = config_value.get(_name, *_value_bool).asBool(); break;
+		*_value_bool = json_value.get(_name, *_value_bool).asBool(); break;
 	case CONFIGVAR_Int:
-		*_value_int = config_value.get(_name, *_value_int).asInt(); break;
+		*_value_int = json_value.get(_name, *_value_int).asInt(); break;
 	case CONFIGVAR_Float:
-		*_value_float = config_value.get(_name, *_value_float).asFloat(); break;
+		*_value_float = json_value.get(_name, *_value_float).asFloat(); break;
 	case CONFIGVAR_String:
-		*_value_string = config_value.get(_name, *_value_string).asString(); break;
+		*_value_string = json_value.get(_name, *_value_string).asString(); break;
 	case CONFIGVAR_Config:
 		// todo: amcgee - hook up more complicated configs here
 		//SetupConfig()
@@ -43,7 +43,7 @@ JSONConfig::~JSONConfig()
 	UnwatchFolder(_folder_change_notification);
 
 	// go through and delete all of the configs we created
-	for (tConfigToDataMap::iterator config = _config_to_data_map.begin(); config != _config_to_data_map.end(); ++config)
+	for (tConfigToDataMap::iterator config = _config_ptr_to_data_map.begin(); config != _config_ptr_to_data_map.end(); ++config)
 	{
 		delete config->first;
 	}
@@ -94,7 +94,7 @@ void JSONConfig::CheckForConfigFolderChanges()
 		// clear out the configs and then reparse them
 		_config_files.clear();
 		ParseConfigs();
-		LinkValuesToVariables();
+		RefreshConfigValuesFromJSON();
 	}
 }
 
@@ -107,13 +107,13 @@ void JSONConfig::DebugPrintJSONConfigs()
 	}
 }
 
-void JSONConfig::LinkValuesToVariables()
+void JSONConfig::RefreshConfigValuesFromJSON()
 {
-	for (tConfigToDataMap::iterator config = _config_to_data_map.begin(); config != _config_to_data_map.end(); ++config)
+	for (tConfigToDataMap::iterator config = _config_ptr_to_data_map.begin(); config != _config_ptr_to_data_map.end(); ++config)
 	{
 		for (tConfigFileVector::iterator file = _config_files.begin(); file != _config_files.end(); ++file)
 		{
-			Json::Value json_values = file->_json_root[config->second._name];
+			Json::Value json_values = file->_json_root[config->second._json_name];
 
 			ConfigData &data = config->second;
 			for (unsigned i = 0; i < data._vars.size(); ++i)
@@ -126,22 +126,26 @@ void JSONConfig::LinkValuesToVariables()
 	}
 }
 
-void JSONConfig::SetupConfig(BaseConfig *config)
+void JSONConfig::InitializeConfig(BaseConfig *config)
 {
-	ConfigData& config_data = _config_to_data_map[config];
+	ConfigData& config_data = _config_ptr_to_data_map[config];
 
-	config_data._name = config->GetName();
+	config_data._class_name = config->GetClassName();
+	config_data._json_name = config->GetJSONName();
 	config->InitConfig();
 
 	// read the config and set the values on the variables
 	for (tConfigFileVector::iterator file = _config_files.begin(); file != _config_files.end(); ++file)
 	{
-		Json::Value json_values = file->_json_root[config_data._name];
-		SetupConfig(config_data, json_values);
+		if (file->_json_root.isMember(config_data._json_name))
+		{
+			Json::Value json_values = file->_json_root[config_data._json_name];
+			InitializeConfig(config_data, json_values);
+		}
 	}
 }
 
-void JSONConfig::SetupConfig(ConfigData& config_data, Json::Value json_values)
+void JSONConfig::InitializeConfig(ConfigData& config_data, Json::Value json_values)
 {
 	for (unsigned i = 0; i < config_data._vars.size(); ++i)
 	{
@@ -164,10 +168,14 @@ void JSONConfig::AddNewConfigVariable(BaseConfig *config, const std::string &typ
 	temp._name = type_name;
 	temp._type = data_type;
 
-	// it doesn't matter which we use since it's a union and they're all pointers
-	temp._value_int = static_cast<int*>(data);
+	// the config variables are created at run-time, so since this is only happening in init, we have to create the variable
+	if (data_type == CONFIGVAR_Config)
+		temp._value_config = static_cast<BaseConfig*>(data)->New();
+	else
+		// it doesn't matter which we use since it's a union and they're all pointers
+		temp._value_int = static_cast<int*>(data);
 
-	_config_to_data_map[config]._vars.push_back(temp);
+	_config_ptr_to_data_map[config]._vars.push_back(temp);
 }
 
 void JSONConfig::InternalPrintValue(Json::Value &value, const std::string &path/*="."*/)

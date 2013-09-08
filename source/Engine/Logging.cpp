@@ -9,7 +9,7 @@
 	#include <windows.h>
 #endif // WIN32
 
-IMPLEMENT_CONFIG(Log, Logging)
+IMPLEMENT_CONFIG(LogConfig)
 {
 	ADD_CONFIG_VAR(int, Flush_Frequency, 15);
 	ADD_CONFIG_VAR(bool, Prepend_Group_Name, true);
@@ -21,11 +21,13 @@ Logging::Logging()
 {
 	// do nothing
 	_current_flush_count = 0;
+	_log_config = LogConfig::StaticNew();
 }
 
 Logging::~Logging()
 {
 	// do nothing
+	delete _log_config;
 	g_log = NULL;
 }
 
@@ -44,10 +46,10 @@ void Logging::Log(LogChannel channel, const char *format, ...)
 	va_list argList;
 	va_start( argList, format );
 
-	// we have to check to see if g_log is valid because it may not be yet
+	// we have to check to see if g_log is valid because it may not be yet (if the config system is logging)
 	if (g_log)
 	{
-		if (g_log->GetConfig()->Prepend_Group_Name)
+		if (g_log->_log_config->Prepend_Group_Name)
 		{
 			groupStringLength = sprintf_s(buffer, MAX_CHARS, "[%s] ", g_log->GetChannelString(channel));
 		}
@@ -64,7 +66,7 @@ void Logging::Log(LogChannel channel, const char *format, ...)
 	{
 		if (g_log->GetFlushCount() == 0)
 		{
-			g_log->SetFlushCount(g_log->GetConfig()->Flush_Frequency);
+			g_log->SetFlushCount(g_log->_log_config->Flush_Frequency);
 			fflush(stdout);
 		}
 		else
