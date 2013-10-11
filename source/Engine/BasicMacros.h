@@ -3,7 +3,7 @@
 
 #define UNUSED_VAR(x) (void)x
 
-namespace Ecks
+namespace TC
 {
 	namespace Assert
 	{
@@ -24,7 +24,7 @@ namespace Ecks
 									 const char* msg,
 									 ...);
 	} // namespace Assert
-} // namespace Ecks
+} // namespace TC
 
 #define MULTI_LINE_MACRO_BEGIN \
 	do \
@@ -44,7 +44,7 @@ namespace Ecks
 		MULTI_LINE_MACRO_BEGIN \
 			if (!(xCondition)) \
 			{ \
-				if (Ecks::Assert::ReportFailure(#xCondition, __FILE__, __LINE__, 0) == Ecks::Assert::ASSERT_HALT) \
+				if (TC::Assert::ReportFailure(#xCondition, __FILE__, __LINE__, 0) == TC::Assert::ASSERT_HALT) \
 					HALT(); \
 			} \
 		MULTI_LINE_MACRO_END
@@ -53,14 +53,14 @@ namespace Ecks
 		MULTI_LINE_MACRO_BEGIN \
 			if (!(xCondition)) \
 			{ \
-				if (Ecks::Assert::ReportFailure(#xCondition, __FILE__, __LINE__, (xMessage), __VA_ARGS__) == Ecks::Assert::ASSERT_HALT) \
+				if (TC::Assert::ReportFailure(#xCondition, __FILE__, __LINE__, (xMessage), __VA_ARGS__) == TC::Assert::ASSERT_HALT) \
 					HALT(); \
 			} \
 		MULTI_LINE_MACRO_END
 
 	#define DBG_ASSERT_FAIL(xMessage, ...) \
 		MULTI_LINE_MACRO_BEGIN \
-			if (Ecks::Assert::ReportFailure(0, __FILE__, __LINE__, (xMessage), __VA_ARGS__) == Ecks::Assert::ASSERT_HALT) \
+			if (TC::Assert::ReportFailure(0, __FILE__, __LINE__, (xMessage), __VA_ARGS__) == TC::Assert::ASSERT_HALT) \
 				HALT(); \
 		MULTI_LINE_MACRO_END
 #else

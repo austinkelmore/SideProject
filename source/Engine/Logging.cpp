@@ -56,7 +56,8 @@ void Logging::Log(LogChannel channel, const char *format, ...)
 	}
 
 	int chars_written = vsprintf_s(buffer + groupStringLength, MAX_CHARS - groupStringLength, format, argList);
-	buffer[chars_written + groupStringLength] = '\0';
+	buffer[chars_written + groupStringLength] = '\n';
+	buffer[chars_written + groupStringLength + 1] = '\0';
 
 #ifdef WIN32
 	OutputDebugStringW(nowide::convert(buffer).c_str());

@@ -99,12 +99,6 @@
     <ClInclude Include="..\..\source\Engine\MemoryManager.h">
       <Filter>Engine\Memory</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\Engine\Vector.h">
-      <Filter>Engine\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\Engine\Matrix.h">
-      <Filter>Engine\Math</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\source\Engine\Camera.h">
       <Filter>Engine\Camera</Filter>
     </ClInclude>
@@ -116,6 +110,21 @@
     </ClInclude>
     <ClInclude Include="..\..\source\Engine\Shader.h">
       <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\Time.h">
+      <Filter>Engine\Time</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\Matrix3.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\Matrix4.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\Vector3.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\Vector4.h">
+      <Filter>Engine\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -153,12 +162,6 @@
     <ClCompile Include="..\..\source\Engine\MemoryManager.cpp">
       <Filter>Engine\Memory</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\Engine\Vector.cpp">
-      <Filter>Engine\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\Engine\Matrix.cpp">
-      <Filter>Engine\Math</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\Engine\BasicMacros.cpp">
       <Filter>Engine</Filter>
     </ClCompile>
@@ -173,6 +176,21 @@
     </ClCompile>
     <ClCompile Include="..\..\source\Engine\Shader.cpp">
       <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\Time.cpp">
+      <Filter>Engine\Time</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\Matrix3.cpp">
+      <Filter>Engine\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\Matrix4.cpp">
+      <Filter>Engine\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\Vector3.cpp">
+      <Filter>Engine\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\Vector4.cpp">
+      <Filter>Engine\Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

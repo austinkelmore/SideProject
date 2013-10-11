@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -20,14 +20,12 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -110,11 +108,14 @@
     <ClInclude Include="..\..\source\Engine\IGraphics.h" />
     <ClInclude Include="..\..\source\Engine\JSONConfig.h" />
     <ClInclude Include="..\..\source\Engine\Logging.h" />
-    <ClInclude Include="..\..\source\Engine\Matrix.h" />
+    <ClInclude Include="..\..\source\Engine\Matrix3.h" />
+    <ClInclude Include="..\..\source\Engine\Matrix4.h" />
     <ClInclude Include="..\..\source\Engine\MemoryManager.h" />
     <ClInclude Include="..\..\source\Engine\OpenGLGraphics.h" />
     <ClInclude Include="..\..\source\Engine\Shader.h" />
-    <ClInclude Include="..\..\source\Engine\Vector.h" />
+    <ClInclude Include="..\..\source\Engine\Time.h" />
+    <ClInclude Include="..\..\source\Engine\Vector3.h" />
+    <ClInclude Include="..\..\source\Engine\Vector4.h" />
     <ClInclude Include="..\..\source\Engine\WindowsPlatform.h" />
     <ClInclude Include="..\..\source\Engine\Win32Input.h" />
   </ItemGroup>
@@ -130,11 +131,14 @@
     <ClCompile Include="..\..\source\Engine\IPlatform.cpp" />
     <ClCompile Include="..\..\source\Engine\JSONConfig.cpp" />
     <ClCompile Include="..\..\source\Engine\Logging.cpp" />
-    <ClCompile Include="..\..\source\Engine\Matrix.cpp" />
+    <ClCompile Include="..\..\source\Engine\Matrix3.cpp" />
+    <ClCompile Include="..\..\source\Engine\Matrix4.cpp" />
     <ClCompile Include="..\..\source\Engine\MemoryManager.cpp" />
     <ClCompile Include="..\..\source\Engine\OpenGLGraphics.cpp" />
     <ClCompile Include="..\..\source\Engine\Shader.cpp" />
-    <ClCompile Include="..\..\source\Engine\Vector.cpp" />
+    <ClCompile Include="..\..\source\Engine\Time.cpp" />
+    <ClCompile Include="..\..\source\Engine\Vector3.cpp" />
+    <ClCompile Include="..\..\source\Engine\Vector4.cpp" />
     <ClCompile Include="..\..\source\Engine\WindowsPlatform.cpp" />
     <ClCompile Include="..\..\source\Engine\Win32Input.cpp" />
     <ClCompile Include="..\..\source\main.cpp" />

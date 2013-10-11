@@ -4,21 +4,13 @@
 #include <cstdarg>
 #include "Logging.h"
 
-namespace Ecks
+namespace TC
 {
 	namespace Assert
 	{
 		AssertBehavior DefaultAssertHandler(const char* condition, const char* msg, const char* file, const int line)
 		{
-			Logging::Log(LOG_Assert, "%s(%d): Assert Failure: ", file, line);
-
-			if (condition != NULL)
-				Logging::Log(LOG_Assert, "'%s' ", condition);
-
-			if (msg != NULL)
-				Logging::Log(LOG_Assert, "%s", msg);
-
-			Logging::Log(LOG_Assert, "\n");
+			Logging::Log(LOG_Assert, "%s(%d): Assert Failure: '%s' %s", file, line, condition ? condition : "", msg ? msg : "");
 
 			return ASSERT_HALT;
 		}
@@ -43,4 +35,4 @@ namespace Ecks
 		}
 
 	} // namespace Assert
-} // namespace Ecks
+} // namespace TC

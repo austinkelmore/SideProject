@@ -40,7 +40,7 @@ void APIENTRY OpenGLDebugFunction(GLenum source, GLenum type, GLuint id, GLenum 
 	case GL_DEBUG_SEVERITY_LOW_ARB: type_severity = "Low"; break;
 	}
 
-	g_log->Log(LOG_Graphics, "%s from %s,\t%s priority Message: %s",
+	g_log->Log(LOG_Graphics, "%s from %s, %s priority Message: %s",
 		error_type.c_str(), src_name.c_str(), type_severity.c_str(), message);
 }
 
@@ -164,7 +164,7 @@ bool OpenGLGraphics::SetupShaders()
 		char* log_buffer = new char[log_size];
 		_glGetShaderInfoLog(_shader_program, log_size, NULL, log_buffer);
 
-		g_log->Log(LOG_Graphics, "Error linking shader program:\n%s", log_buffer);
+		g_log->Log(LOG_Graphics, "Error linking shader program: %s", log_buffer);
 		delete[] log_buffer;
 
 		return false;
@@ -193,7 +193,7 @@ bool OpenGLGraphics::CompileShader(const std::string& shader_path, const GLenum 
 	o_shader = _glCreateShader(shader_type);
 	if (o_shader == GL_FALSE)
 	{
-		g_log->Log(LOG_Graphics, "Couldn't create OpenGL Shader", shader_path.c_str());
+		g_log->Log(LOG_Graphics, "Couldn't create OpenGL Shader %s", shader_path.c_str());
 		CloseFile(shader_file);
 		return false;
 	}
@@ -210,7 +210,7 @@ bool OpenGLGraphics::CompileShader(const std::string& shader_path, const GLenum 
 		char* log_buffer = new char[log_size];
 		_glGetShaderInfoLog(o_shader, log_size, NULL, log_buffer);
 
-		g_log->Log(LOG_Graphics, "Error Compiling shader %s:\n%s", shader_path.c_str(), log_buffer);
+		g_log->Log(LOG_Graphics, "Error Compiling shader %s: %s", shader_path.c_str(), log_buffer);
 		delete[] log_buffer;
 
 		return false;
@@ -467,7 +467,7 @@ void OpenGLGraphics::Update()
 	_glEnableVertexAttribArray(0);
 	_glEnableVertexAttribArray(1);
 	_glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	_glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)48);
+	_glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)48); // offset into color data
 
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 

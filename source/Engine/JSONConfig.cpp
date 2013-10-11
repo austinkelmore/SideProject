@@ -24,7 +24,7 @@ void ConfigVar::AssignValue(const Json::Value &json_value)
 	case CONFIGVAR_String:
 		*_value_string = json_value.get(_name, *_value_string).asString(); break;
 	case CONFIGVAR_Config:
-		// todo: amcgee - hook up more complicated configs here
+		// todo: akelmore - hook up more complicated configs here
 		//SetupConfig()
 		break;
 	default:
@@ -55,7 +55,7 @@ void JSONConfig::ReadConfigFolder(const std::string &folder_path)
 
 	// hook up the ability to monitor the file for changes
 	if (!WatchFolder(folder_path.c_str(), _folder_change_notification))
-		Logging::Log(LOG_Config, "Error trying to watch the configs directory: %d", GetLastError());
+		Logging::Log(LOG_Config, "Error trying to watch the configs directory: %s with error %d", folder_path.c_str(), GetLastError());
 
 	ParseConfigs();
 }
@@ -79,7 +79,7 @@ void JSONConfig::ParseConfigs()
 			if (LoadFile(file_path.c_str(), &file_stream, file_size))
 			{
 				if (!reader.parse(file_stream, file_stream + file_size, _config_files.back()._json_root))
-					Logging::Log(LOG_Config, "Failed to parse configuration: %s\n", reader.getFormattedErrorMessages().c_str());
+					Logging::Log(LOG_Config, "Failed to parse configuration: %s", reader.getFormattedErrorMessages().c_str());
 
 				CloseFile(file_stream);
 			}
@@ -102,7 +102,7 @@ void JSONConfig::DebugPrintJSONConfigs()
 {
 	for (tConfigFileVector::iterator configs = _config_files.begin(); configs != _config_files.end(); ++configs)
 	{
-		Logging::Log(LOG_Config, "Config File: %s\n", configs->_file_name.c_str());
+		Logging::Log(LOG_Config, "Config File: %s", configs->_file_name.c_str());
 		InternalPrintValue(configs->_json_root);
 	}
 }
@@ -183,26 +183,26 @@ void JSONConfig::InternalPrintValue(Json::Value &value, const std::string &path/
 	switch (value.type())
 	{
 	case Json::nullValue:
-		Logging::Log(LOG_Config, "%s=null\n", path.c_str());
+		Logging::Log(LOG_Config, "%s=null", path.c_str());
 		break;
 	case Json::intValue:
-		Logging::Log(LOG_Config, "%s=%s\n", path.c_str(), Json::valueToString(value.asLargestInt()).c_str());
+		Logging::Log(LOG_Config, "%s=%s", path.c_str(), Json::valueToString(value.asLargestInt()).c_str());
 		break;
 	case Json::uintValue:
-		Logging::Log(LOG_Config, "%s=%s\n", path.c_str(), Json::valueToString(value.asLargestUInt()).c_str());
+		Logging::Log(LOG_Config, "%s=%s", path.c_str(), Json::valueToString(value.asLargestUInt()).c_str());
 		break;
 	case Json::realValue:
-		Logging::Log(LOG_Config, "%s=%.16g\n", path.c_str(), value.asDouble());
+		Logging::Log(LOG_Config, "%s=%.16g", path.c_str(), value.asDouble());
 		break;
 	case Json::stringValue:
-		Logging::Log(LOG_Config, "%s=\"%s\"\n", path.c_str(), value.asString().c_str());
+		Logging::Log(LOG_Config, "%s=\"%s\"", path.c_str(), value.asString().c_str());
 		break;
 	case Json::booleanValue:
-		Logging::Log(LOG_Config, "%s=%s\n", path.c_str(), value.asBool() ? "true" : "false");
+		Logging::Log(LOG_Config, "%s=%s", path.c_str(), value.asBool() ? "true" : "false");
 		break;
 	case Json::arrayValue:
 		{
-			Logging::Log(LOG_Config, "%s=[]\n", path.c_str());
+			Logging::Log(LOG_Config, "%s=[]", path.c_str());
 			int size = value.size();
 			for (int index =0; index < size; ++index)
 			{
@@ -214,7 +214,7 @@ void JSONConfig::InternalPrintValue(Json::Value &value, const std::string &path/
 		break;
 	case Json::objectValue:
 		{
-			Logging::Log(LOG_Config, "%s={}\n", path.c_str());
+			Logging::Log(LOG_Config, "%s={}", path.c_str());
 			Json::Value::Members members(value.getMemberNames());
 			std::sort(members.begin(), members.end());
 			std::string suffix = *(path.end()-1) == '.' ? "" : ".";

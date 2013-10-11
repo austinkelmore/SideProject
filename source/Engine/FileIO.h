@@ -6,7 +6,7 @@
 
 typedef HANDLE FolderChangeNotificationHandle;
 typedef HANDLE PrevFileHandle;
-#endif
+#endif // WIN32
 
 bool LoadFile(const char* filename, char** out_data, int &out_size);
 void CloseFile(const char* filename);

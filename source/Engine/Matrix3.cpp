@@ -1,5 +1,5 @@
 
-#include "Matrix.h"
+#include "Matrix3.h"
 
 const Matrix3 Matrix3::Identity;
 
@@ -13,7 +13,7 @@ Matrix3::Matrix3()
 
 Matrix3::Matrix3(const Matrix3& rhs)
 {
-	memcpy(m, rhs.m, sizeof(this));
+	*this = rhs;
 }
 
 Matrix3& Matrix3::operator=(const Matrix3& rhs)
