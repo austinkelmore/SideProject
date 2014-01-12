@@ -6,8 +6,11 @@ layout(location = 1) in vec4 color;
 
 smooth out vec4 theColor;
 
+uniform vec4 offset;
+uniform mat4 perspectiveMatrix;
+
 void main(void)
 {
-	gl_Position = position;
+	gl_Position = perspectiveMatrix * (position + offset);
 	theColor = color;
 }

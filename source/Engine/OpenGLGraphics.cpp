@@ -62,6 +62,9 @@ OpenGLGraphics::OpenGLGraphics()
 
 OpenGLGraphics::~OpenGLGraphics()
 {
+	for (unsigned i = 0; i < _graphics_components.size(); ++i)
+		delete _graphics_components[i];
+
 	Destroy();
 }
 
@@ -105,23 +108,36 @@ bool OpenGLGraphics::Init()
 	_glDebugMessageCallbackARB(OpenGLDebugFunction, NULL);
 #endif // GL_ARB_debug_output
 	
-
 	if (!SetupShaders())
 		return false;
 
-	// hacky hack get it done!
-	const float vertex_data[] = {
-		0.0f,    0.5f, 0.0f, 1.0f,
-		0.5f, -0.366f, 0.0f, 1.0f,
-		-0.5f, -0.366f, 0.0f, 1.0f,
-		1.0f,    0.0f, 0.0f, 1.0f,
-		0.0f,    1.0f, 0.0f, 1.0f,
-		0.0f,    0.0f, 1.0f, 1.0f,
-	};
+	// create a dummy graphics component
+	GraphicsComponent::Create();
+	std::vector<float> new_vertex_array;
+	std::vector<float> new_colors;
+	int vertex_count = 0;
+	for (unsigned i = 0; i < _graphics_components.size(); ++i)
+	{
+		std::vector<float> vertices = _graphics_components[i]->GetVertices();
+		std::vector<float> colors = _graphics_components[i]->GetColors();
+		vertex_count += vertices.size() * 2;
+		new_vertex_array.insert(new_vertex_array.end(), vertices.begin(), vertices.end());
+		new_colors.insert(new_colors.end(), colors.begin(), colors.end());
+	}
+	new_vertex_array.insert(new_vertex_array.end(), new_colors.begin(), new_colors.end());
+
+	// dummy perspective matrix
+	float aspectRatio = float(g_platform->GetWidth())/g_platform->GetHeight();
+	_perspective_matrix.CreatePerspectiveMatrix(aspectRatio, 0.5f, 3.f);
+	_perspective_matrix_ogl = _glGetUniformLocation(_shader_program, "perspectiveMatrix");
+
+	_glUseProgram(_shader_program);
+	_glUniformMatrix4fv(_perspective_matrix_ogl, 1, GL_FALSE, _perspective_matrix.GetData());
+	_glUseProgram(0);
 
 	_glGenBuffers(1, &_vertex_buffer);
 	_glBindBuffer(GL_ARRAY_BUFFER, _vertex_buffer);
-	_glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_data), vertex_data, GL_STATIC_DRAW);
+	_glBufferData(GL_ARRAY_BUFFER, vertex_count * sizeof(float), &new_vertex_array[0], GL_STATIC_DRAW);
 	_glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	_glGenVertexArrays(1, &_vertex_array);
@@ -173,6 +189,8 @@ bool OpenGLGraphics::SetupShaders()
 	_glDetachShader(_shader_program, _fragment_shader);
 	_glDetachShader(_shader_program, _vertex_shader);
 
+	_offset_location = _glGetUniformLocation(_shader_program, "offset");
+
 	return true;
 }
 
@@ -183,7 +201,7 @@ bool OpenGLGraphics::CompileShader(const std::string& shader_path, const GLenum 
 	GLint shader_status = 0;
 
 	// load the shader file into a buffer
-	if (!LoadFile(shader_path.c_str(), &shader_file, file_size))
+	if (!LoadFileToBuffer(shader_path.c_str(), &shader_file, file_size))
 	{
 		g_log->Log(LOG_Graphics, "Couldn't load Shader file %s", shader_path.c_str());
 		return false;
@@ -194,12 +212,12 @@ bool OpenGLGraphics::CompileShader(const std::string& shader_path, const GLenum 
 	if (o_shader == GL_FALSE)
 	{
 		g_log->Log(LOG_Graphics, "Couldn't create OpenGL Shader %s", shader_path.c_str());
-		CloseFile(shader_file);
+		DeleteFileBuffer(&shader_file);
 		return false;
 	}
 
 	_glShaderSource(o_shader, 1, &shader_file, &file_size);
-	CloseFile(shader_file);
+	DeleteFileBuffer(&shader_file);
 
 	_glCompileShader(o_shader);
 	_glGetShaderiv(o_shader, GL_COMPILE_STATUS, &shader_status);
@@ -406,6 +424,10 @@ bool OpenGLGraphics::LoadExtensions()
 	if (!_glUniform4fv)
 		return false;
 
+	_glBufferSubData = (PFNGLBUFFERSUBDATAPROC)wglGetProcAddress("glBufferSubData");
+	if (!_glBufferSubData)
+		return false;
+
 	return true;
 }
 
@@ -456,20 +478,52 @@ int OpenGLGraphics::ChoosePixelFormat(HDC device_context)
 	return pixel_format;
 }
 
+// todo: akelmore - rename from update to something more descriptive (like draw), or separate out the two
 void OpenGLGraphics::Update()
 {
+	// doing this the slow way at first
+	// get the vertices
+	std::vector<float> new_vertex_array;
+	std::vector<float> new_colors;
+	int vertex_count = 0;
+	for (unsigned i = 0; i < _graphics_components.size(); ++i)
+	{
+		std::vector<float> vertices = _graphics_components[i]->GetVertices();
+		std::vector<float> colors = _graphics_components[i]->GetColors();
+		vertex_count += _graphics_components[i]->GetVertexCount() * 2;
+		new_vertex_array.insert(new_vertex_array.end(), vertices.begin(), vertices.end());
+		new_colors.insert(new_colors.end(), colors.begin(), colors.end());
+	}
+	new_vertex_array.insert(new_vertex_array.end(), new_colors.begin(), new_colors.end());
+
+	//_glBindBuffer(GL_ARRAY_BUFFER, _vertex_array);
+	//_glBufferSubData(GL_ARRAY_BUFFER, 0, vertex_count * sizeof(float), &new_vertex_array[0]);
+	//_glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 	glClearColor(0.f, 0.f, 0.f, 0.f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	_glUseProgram(_shader_program);
+	
+	//GLuint _perspective_matrix_ogl = _glGetUniformLocation(_shader_program, "perspectiveMatrix");
+	//_glUniformMatrix4fv(_perspective_matrix_ogl, 1, GL_FALSE, _perspective_matrix.GetData());
+
+	// calc the position offsets and tell the shader what they are so we only have to do it once and not per object
+	Vector4 offset(1.5f, 0.5f, 0.f, 0.f);
+	//static float move = 0.f;
+	//move += 0.00005f;
+	//offset[0] += move;
+	
+	_glUniform4fv(_offset_location, sizeof(offset), &offset[0]);
 
 	_glBindBuffer(GL_ARRAY_BUFFER, _vertex_array);
 	_glEnableVertexAttribArray(0);
 	_glEnableVertexAttribArray(1);
+	size_t colorData = new_vertex_array.size() * sizeof(new_vertex_array[0]) / 2;
 	_glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	_glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)48); // offset into color data
+	_glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)colorData);
 
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawArrays(GL_TRIANGLES, 0, vertex_count / 2);
 
 	_glDisableVertexAttribArray(0);
 	_glDisableVertexAttribArray(1);
@@ -508,4 +562,11 @@ void OpenGLGraphics::Destroy()
 		ReleaseDC(window, _device_context);
 		_device_context = NULL;
 	}
+}
+
+GraphicsComponent* OpenGLGraphics::CreateGraphicsComponent()
+{
+	GraphicsComponent* component = new GraphicsComponent();
+	_graphics_components.push_back(component);
+	return component;
 }

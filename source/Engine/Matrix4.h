@@ -19,6 +19,9 @@ public:
 	// vector operators
 	Vector4 operator*(const Vector4& rhs) const;
 
+	Matrix4& CreatePerspectiveMatrix(const float aspect, const float zNear, const float zFar);
+	float* GetData();
+
 #pragma warning(push)
 #pragma warning(disable:4201) // nonstandard extension used : nameless struct/union
 	union

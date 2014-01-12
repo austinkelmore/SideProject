@@ -46,6 +46,7 @@ Vector4 operator*(const float scalar, const Vector4& rhs)
 
 Vector4 Vector4::operator/(const float divisor) const
 {
+	DBG_ASSERT(divisor != 0.f);
 	return Vector4(x / divisor, y / divisor, z / divisor, w / divisor);
 }
 
@@ -95,6 +96,12 @@ Vector4 Vector4::operator|(const Vector4& rhs) const
 					(z * rhs.x) - (rhs.z * x),
 					(x * rhs.y) - (rhs.x * y),
 					0.f );
+}
+
+float& Vector4::operator[](const int index)
+{
+	DBG_ASSERT(0 <= index && index < 4);
+	return v[index];
 }
 
 float Vector4::Length() const

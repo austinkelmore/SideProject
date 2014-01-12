@@ -28,11 +28,23 @@ public:
 	float operator*(const Vector3& rhs) const;
 	Vector3 operator|(const Vector3& rhs) const;
 
+	float& operator[](const int index);
+
 	float Length() const;
 	float LengthSqrd() const;
 
 	void Normalize();
 	Vector3 Normal() const;
 
-	float x, y, z;
+#pragma warning(push)
+#pragma warning(disable:4201) // nonstandard extension used : nameless struct/union
+	union
+	{
+		float v[3];
+		struct
+		{
+			float x, y, z;
+		};
+	};
+#pragma warning(pop)
 };

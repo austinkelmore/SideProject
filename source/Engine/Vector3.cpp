@@ -46,6 +46,7 @@ Vector3 operator*(const float scalar, const Vector3& rhs)
 
 Vector3 Vector3::operator/(const float divisor) const
 {
+	DBG_ASSERT(divisor != 0.f);
 	return Vector3(x / divisor, y / divisor, z / divisor);
 }
 
@@ -88,11 +89,18 @@ float Vector3::operator*(const Vector3& rhs) const
 	return (x * rhs.x + y * rhs.y + z * rhs.z);
 }
 
+// cross product
 Vector3 Vector3::operator|(const Vector3& rhs) const
 {
 	return Vector3( (y * rhs.z) - (rhs.y * z),
 					(z * rhs.x) - (rhs.z * x),
 					(x * rhs.y) - (rhs.x * y) );
+}
+
+float& Vector3::operator[](const int index)
+{
+	DBG_ASSERT(0 <= index && index < 3);
+	return v[index];
 }
 
 float Vector3::Length() const

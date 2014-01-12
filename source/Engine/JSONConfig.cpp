@@ -6,50 +6,29 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
+#include "BaseConfig.h"
 
-JSONConfig* g_config = NULL;
+JSONConfigMgr* g_config = NULL;
 
-using std::ifstream;
+//using std::ifstream;
 
-void ConfigVar::AssignValue(const Json::Value &json_value)
-{
-	switch (_type)
-	{
-	case CONFIGVAR_Bool:
-		*_value_bool = json_value.get(_name, *_value_bool).asBool(); break;
-	case CONFIGVAR_Int:
-		*_value_int = json_value.get(_name, *_value_int).asInt(); break;
-	case CONFIGVAR_Float:
-		*_value_float = json_value.get(_name, *_value_float).asFloat(); break;
-	case CONFIGVAR_String:
-		*_value_string = json_value.get(_name, *_value_string).asString(); break;
-	case CONFIGVAR_Config:
-		// todo: akelmore - hook up more complicated configs here
-		//SetupConfig()
-		break;
-	default:
-		DBG_ASSERT_FAIL("Unknown ConfigVar Type");
-		break;
-	}
-}
-
-JSONConfig::JSONConfig()
+JSONConfigMgr::JSONConfigMgr()
 {
 	_folder_change_notification = NULL;
 }
 
-JSONConfig::~JSONConfig()
+JSONConfigMgr::~JSONConfigMgr()
 {
 	UnwatchFolder(_folder_change_notification);
 
 	// go through and delete all of the configs we created
-	for (tConfigToDataMap::iterator config = _config_ptr_to_data_map.begin(); config != _config_ptr_to_data_map.end(); ++config)
+	for (unsigned i = 0; i < _configs.size(); ++i)
 	{
-		delete config->first;
+		delete _configs[i];
 	}
 }
 
-void JSONConfig::ReadConfigFolder(const std::string &folder_path)
+void JSONConfigMgr::ReadConfigFolder(const std::string &folder_path)
 {
 	_folder_path = folder_path;
 
@@ -60,7 +39,7 @@ void JSONConfig::ReadConfigFolder(const std::string &folder_path)
 	ParseConfigs();
 }
 
-void JSONConfig::ParseConfigs()
+void JSONConfigMgr::ParseConfigs()
 {
 	PrevFileHandle prev_handle = NULL;
 	std::string file_path;
@@ -72,113 +51,75 @@ void JSONConfig::ParseConfigs()
 		{
 			Json::Reader reader;
 
-			_config_files.push_back(file_path);
+			_json_files.push_back(file_path);
 
 			char* file_stream = NULL;
 			int file_size;
-			if (LoadFile(file_path.c_str(), &file_stream, file_size))
+			if (LoadFileToBuffer(file_path.c_str(), &file_stream, file_size))
 			{
-				if (!reader.parse(file_stream, file_stream + file_size, _config_files.back()._json_root))
+				_json_files.back()._json_root.clear();
+				if (!reader.parse(file_stream, file_stream + file_size, _json_files.back()._json_root))
 					Logging::Log(LOG_Config, "Failed to parse configuration: %s", reader.getFormattedErrorMessages().c_str());
 
-				CloseFile(file_stream);
+				DeleteFileBuffer(&file_stream);
 			}
 		}
 	} while(!file_path.empty());
 }
 
-void JSONConfig::CheckForConfigFolderChanges()
+void JSONConfigMgr::CheckForConfigFolderChanges()
 {
 	if (CheckForFolderChanges(_folder_change_notification))
 	{
 		// clear out the configs and then reparse them
-		_config_files.clear();
+		_json_files.clear();
 		ParseConfigs();
 		RefreshConfigValuesFromJSON();
+		DebugPrintJSONConfigs();
 	}
 }
 
-void JSONConfig::DebugPrintJSONConfigs()
+void JSONConfigMgr::DebugPrintJSONConfigs()
 {
-	for (tConfigFileVector::iterator configs = _config_files.begin(); configs != _config_files.end(); ++configs)
+	for (std::vector<JSONFileData>::iterator configs = _json_files.begin(); configs != _json_files.end(); ++configs)
 	{
 		Logging::Log(LOG_Config, "Config File: %s", configs->_file_name.c_str());
 		InternalPrintValue(configs->_json_root);
 	}
 }
 
-void JSONConfig::RefreshConfigValuesFromJSON()
+void JSONConfigMgr::RefreshConfigValuesFromJSON()
 {
-	for (tConfigToDataMap::iterator config = _config_ptr_to_data_map.begin(); config != _config_ptr_to_data_map.end(); ++config)
+	for (unsigned i = 0; i < _configs.size(); ++i)
 	{
-		for (tConfigFileVector::iterator file = _config_files.begin(); file != _config_files.end(); ++file)
-		{
-			Json::Value json_values = file->_json_root[config->second._json_name];
-
-			ConfigData &data = config->second;
-			for (unsigned i = 0; i < data._vars.size(); ++i)
-			{
-				ConfigVar &var = data._vars[i];
-				if (json_values.isMember(var._name))
-					var.AssignValue(json_values);
-			}
-		}
+		BaseConfig* config = _configs[i];
+		InitializeConfig(config, false);
 	}
 }
 
-void JSONConfig::InitializeConfig(BaseConfig *config)
+void JSONConfigMgr::InitializeConfig(BaseConfig *config, const bool add_to_mgr)
 {
-	ConfigData& config_data = _config_ptr_to_data_map[config];
-
-	config_data._class_name = config->GetClassName();
-	config_data._json_name = config->GetJSONName();
-	config->InitConfig();
-
-	// read the config and set the values on the variables
-	for (tConfigFileVector::iterator file = _config_files.begin(); file != _config_files.end(); ++file)
+	if (add_to_mgr)
 	{
-		if (file->_json_root.isMember(config_data._json_name))
-		{
-			Json::Value json_values = file->_json_root[config_data._json_name];
-			InitializeConfig(config_data, json_values);
-		}
+		DBG_ASSERT_MSG(std::find(_configs.begin(), _configs.end(), config) == _configs.end(), "Trying to initialize a config that already exists in the JSON Manager.");
+		_configs.push_back(config);
+	}
+
+	// fill the configs from the files
+	for (std::vector<JSONFileData>::iterator file = _json_files.begin(); file != _json_files.end(); ++file)
+	{
+		config->SetFromJSON(file->_json_root);
 	}
 }
 
-void JSONConfig::InitializeConfig(ConfigData& config_data, Json::Value json_values)
+void JSONConfigMgr::RemoveFromMgr(const BaseConfig *config)
 {
-	for (unsigned i = 0; i < config_data._vars.size(); ++i)
-	{
-		ConfigVar &var = config_data._vars[i];
-		if (json_values.isMember(var._name))
-		{
-			if (var._type != CONFIGVAR_Config)
-				var.AssignValue(json_values);
-			else
-			{
-				//ConfigData sub_config_data = _config_to_data_map[]
-			}
-		}
-	}
+	std::vector<BaseConfig*>::iterator iter = std::find(_configs.begin(), _configs.end(), config);
+	DBG_ASSERT_MSG(iter != _configs.end(), "Trying to remove a config frmo the JSON Mgr that isn't tracked.");
+	_configs.erase(iter);
 }
 
-void JSONConfig::AddNewConfigVariable(BaseConfig *config, const std::string &type_name, void* data, ConfigVarType data_type)
-{
-	ConfigVar temp;
-	temp._name = type_name;
-	temp._type = data_type;
-
-	// the config variables are created at run-time, so since this is only happening in init, we have to create the variable
-	if (data_type == CONFIGVAR_Config)
-		temp._value_config = static_cast<BaseConfig*>(data)->New();
-	else
-		// it doesn't matter which we use since it's a union and they're all pointers
-		temp._value_int = static_cast<int*>(data);
-
-	_config_ptr_to_data_map[config]._vars.push_back(temp);
-}
-
-void JSONConfig::InternalPrintValue(Json::Value &value, const std::string &path/*="."*/)
+void JSONConfigMgr::InternalPrintValue(Json::Value &value, const std::string &path/*="."*/)
 {
 	switch (value.type())
 	{

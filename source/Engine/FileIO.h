@@ -8,8 +8,8 @@ typedef HANDLE FolderChangeNotificationHandle;
 typedef HANDLE PrevFileHandle;
 #endif // WIN32
 
-bool LoadFile(const char* filename, char** out_data, int &out_size);
-void CloseFile(const char* filename);
+bool LoadFileToBuffer(const char* filename, char** out_data, int &out_size);
+void DeleteFileBuffer(char** data_buffer);
 
 bool WatchFolder(const char* folder_path, FolderChangeNotificationHandle &out_handle);
 bool CheckForFolderChanges(const FolderChangeNotificationHandle handle);

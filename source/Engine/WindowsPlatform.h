@@ -2,14 +2,7 @@
 #pragma once
 
 #include "IPlatform.h"
-#include "JSONConfig.h"
-
-DEFINE_CONFIG(PlatformConfig, Platform)
-	std::string Renderer;
-	bool Fullscreen;
-	int Width;
-	int Height;
-DEFINE_CONFIG_END
+#include <windows.h>
 
 class WindowsPlatform : public IPlatform
 {
@@ -31,8 +24,6 @@ public:
 	bool _ignore_window_messages;
 
 private:
-
-	PlatformConfig* _platform_config;
 
 	HINSTANCE _instance;
 	HWND _window;

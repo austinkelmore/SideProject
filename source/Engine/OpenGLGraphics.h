@@ -11,6 +11,7 @@
 #include "opengl\glext.h"
 #include "opengl\wglext.h"
 
+#include "Matrix4.h"
 #include <string>
 
 class OpenGLGraphics : public IGraphics
@@ -22,6 +23,8 @@ public:
 	virtual bool Init();
 	virtual void Update();
 	virtual void Destroy();
+
+	virtual GraphicsComponent* CreateGraphicsComponent();
 
 	bool SetupShaders();
 	bool CompileShader(const std::string& shader_path, const GLenum shader_type, unsigned int& o_shader);
@@ -48,6 +51,12 @@ private:
 	unsigned int _vertex_array;
 	unsigned int _vertex_buffer;
 	unsigned int _index_buffer;
+
+	std::vector<GraphicsComponent*> _graphics_components;
+	GLuint _offset_location;
+
+	Matrix4 _perspective_matrix;
+	GLuint _perspective_matrix_ogl;
 
 	// extensions
 	PFNWGLCHOOSEPIXELFORMATARBPROC _wglChoosePixelFormatARB;
@@ -88,4 +97,5 @@ private:
 	PFNGLDISABLEVERTEXATTRIBARRAYPROC _glDisableVertexAttribArray;
 	PFNGLUNIFORM3FVPROC _glUniform3fv;
 	PFNGLUNIFORM4FVPROC _glUniform4fv;
+	PFNGLBUFFERSUBDATAPROC _glBufferSubData;
 };

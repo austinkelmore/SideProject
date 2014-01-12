@@ -14,6 +14,7 @@ public:
 	virtual bool Init();
 	virtual void Update();
 	virtual void Destroy();
+	virtual GraphicsComponent* CreateGraphicsComponent();
 
 private:
 };

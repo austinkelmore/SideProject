@@ -2,7 +2,6 @@
 #include "Logging.h"
 #include <stdio.h>
 #include <nowide/convert.h>
-#include "JSONConfig.h"
 #include "BasicMacros.h"
 
 #ifdef WIN32
@@ -33,8 +32,6 @@ Logging::~Logging()
 
 void Logging::Log(LogChannel channel, const char *format, ...)
 {
-	UNUSED_VAR(channel);
-
 	// see if we want to early out
 	if (g_log && !g_log->IsChannelEnabled(channel))
 		return;

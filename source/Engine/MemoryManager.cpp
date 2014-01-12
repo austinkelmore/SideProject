@@ -61,4 +61,6 @@ void MemoryManager::DebugOutputAllocations()
 
 		Logging::Log(LOG_Memory, "\n=== End Memory leaks ===");
 	}
+	else
+		Logging::Log(LOG_Memory, "\nNo memory leaks!");
 }

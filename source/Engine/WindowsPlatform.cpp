@@ -3,6 +3,7 @@
 #include "Logging.h"
 #include "BasicMacros.h"
 #include "OpenGLGraphics.h"
+#include "JSONConfig.h"
 
 static LRESULT CALLBACK WindowsMessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
@@ -31,19 +32,10 @@ static LRESULT CALLBACK WindowsMessageHandler(HWND hwnd, UINT umessage, WPARAM w
 	}
 }
 
-IMPLEMENT_CONFIG(PlatformConfig)
-{
-	ADD_CONFIG_VAR(std::string, Renderer, "opengl");
-	ADD_CONFIG_VAR(bool, Fullscreen, false);
-	ADD_CONFIG_VAR(int, Width, 200);
-	ADD_CONFIG_VAR(int, Height, 200);
-}
 
 IPlatform* CreatePlatform()
 {
-	DBG_ASSERT(g_config == NULL);
-	g_config = new JSONConfig();
-	g_config->ReadConfigFolder("configs");
+	Platform::CreateBasePlatformFunctionality();
 
 	DBG_ASSERT(g_platform == NULL);
 	g_platform = new WindowsPlatform();
@@ -63,21 +55,18 @@ WindowsPlatform::WindowsPlatform()
 	_instance = NULL;
 	_window = NULL;
 	_ignore_window_messages = false;
-
-	_platform_config = PlatformConfig::StaticNew();
 }
 
 WindowsPlatform::~WindowsPlatform()
 {
 	Destroy();
-	delete _platform_config;
 	g_platform = NULL;
 }
 
+// todo: akelmore - separate out the init with the command line versus regular init
 bool WindowsPlatform::Init(int argc, char** argv)
 {
-	UNUSED_VAR(argc);
-	UNUSED_VAR(argv);
+	SuperClass::Init(argc, argv);
 
 	_instance = GetModuleHandle(NULL);
 
@@ -102,7 +91,7 @@ bool WindowsPlatform::Init(int argc, char** argv)
 	// do the correct initialization based off of what we're doing (defaulting to OpenGL)
 	if (_platform_config->Renderer == "directx")
 	{
-		DBG_ASSERT_FAIL("I haven't created the direct x part of the renderer yet.");
+		DBG_ASSERT_FAIL("I haven't created the DirectX part of the renderer yet.");
 	}
 	else
 	{
@@ -143,6 +132,7 @@ bool WindowsPlatform::Init(int argc, char** argv)
 	}
 
 	// create the real window
+	// 200s are x/y position on screen
 	_window = CreateWindowEx(WS_EX_APPWINDOW, app_name, app_name,
 							WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
 							200, 200, _platform_config->Width, _platform_config->Height,
@@ -150,6 +140,8 @@ bool WindowsPlatform::Init(int argc, char** argv)
 
 	if (_window == NULL)
 		return false;
+
+	SetScreenDimensions(_platform_config->Width, _platform_config->Height);
 
 	if(!_graphics_renderer->Init())
 		return false;
@@ -176,20 +168,20 @@ void WindowsPlatform::Destroy()
 
 	// delete all of the subsystems
 	delete g_log;
-	delete g_config;
+
+	SuperClass::Destroy();
 }
 
 void WindowsPlatform::Resize(int width, int height)
 {
-	UNUSED_VAR(width);
-	UNUSED_VAR(height);
+	SetScreenDimensions(width, height);
 
-
+	// todo: akelmore - handle resizing of the window
+	//Destroy();
 }
 
 void WindowsPlatform::Update()
 {
-	g_config->CheckForConfigFolderChanges();
 	MSG msg;
 	while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0)
 	{

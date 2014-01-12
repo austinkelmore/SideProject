@@ -126,6 +126,18 @@
     <ClInclude Include="..\..\source\Engine\Vector4.h">
       <Filter>Engine\Math</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\source\Engine\GraphicsComponent.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\MathConstants.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\Vector2.h">
+      <Filter>Engine\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\Engine\BaseConfig.h">
+      <Filter>Engine\Config</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\main.cpp" />
@@ -191,6 +203,18 @@
     </ClCompile>
     <ClCompile Include="..\..\source\Engine\Vector4.cpp">
       <Filter>Engine\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\GraphicsComponent.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\IGraphics.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\Vector2.cpp">
+      <Filter>Engine\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\Engine\BaseConfig.cpp">
+      <Filter>Engine\Config</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

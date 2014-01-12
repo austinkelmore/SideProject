@@ -53,3 +53,23 @@ Vector4 Matrix4::operator*(const Vector4& rhs) const
 					m20 * rhs.x + m21 * rhs.y + m22 * rhs.z + m23 * rhs.w,
 					m30 * rhs.x + m31 * rhs.y + m32 * rhs.z + m33 * rhs.w );
 }
+
+Matrix4& Matrix4::CreatePerspectiveMatrix(const float aspect, const float zNear, const float zFar)
+{
+	// hacky hack thing first
+	DBG_ASSERT(zNear - zFar != 0.f);
+
+	m[0][0] = 1.f / aspect;
+	m[1][1] = 1.f;
+	m[2][2] = (zFar + zNear) / (zNear - zFar);
+	m[2][3] = -1.f;
+	m[3][2] = (2 * zFar * zNear) / (zNear - zFar);
+	m[3][3] = 0.f;
+
+	return *this;
+}
+
+float* Matrix4::GetData()
+{
+	return &m[0][0];
+}
