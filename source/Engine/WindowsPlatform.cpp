@@ -37,13 +37,13 @@ IPlatform* CreatePlatform()
 {
 	Platform::CreateBasePlatformFunctionality();
 
-	DBG_ASSERT(g_platform == NULL);
+	DBG_ASSERT(g_platform == nullptr);
 	g_platform = new WindowsPlatform();
 
 	// set up the logging second so that we have a report mechanism in case other things fail
 	g_log = new Logging();
 
-	g_config->DebugPrintJSONConfigs();
+	//g_config->DebugPrintJSONConfigs();
 
 	return g_platform;
 }
@@ -51,16 +51,16 @@ IPlatform* CreatePlatform()
 WindowsPlatform::WindowsPlatform()
 	: IPlatform()
 {
-	_graphics_renderer = NULL;
-	_instance = NULL;
-	_window = NULL;
+	_graphics_renderer = nullptr;
+	_instance = nullptr;
+	_window = nullptr;
 	_ignore_window_messages = false;
 }
 
 WindowsPlatform::~WindowsPlatform()
 {
 	Destroy();
-	g_platform = NULL;
+	g_platform = nullptr;
 }
 
 // todo: akelmore - separate out the init with the command line versus regular init
@@ -68,7 +68,7 @@ bool WindowsPlatform::Init(int argc, char** argv)
 {
 	SuperClass::Init(argc, argv);
 
-	_instance = GetModuleHandle(NULL);
+	_instance = GetModuleHandle(nullptr);
 
 	LPCWSTR app_name = L"Side Project";
 	// Setup the windows class with default settings.
@@ -77,11 +77,11 @@ bool WindowsPlatform::Init(int argc, char** argv)
 	_window_class.cbClsExtra    = 0;
 	_window_class.cbWndExtra    = 0;
 	_window_class.hInstance     = _instance;
-	_window_class.hIcon			= LoadIcon(NULL, IDI_WINLOGO);
+	_window_class.hIcon			= LoadIcon(nullptr, IDI_WINLOGO);
 	_window_class.hIconSm       = _window_class.hIcon;
-	_window_class.hCursor       = LoadCursor(NULL, IDC_ARROW);
+	_window_class.hCursor       = LoadCursor(nullptr, IDC_ARROW);
 	_window_class.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-	_window_class.lpszMenuName  = NULL;
+	_window_class.lpszMenuName  = nullptr;
 	_window_class.lpszClassName = app_name;
 	_window_class.cbSize        = sizeof(WNDCLASSEX);
 
@@ -99,9 +99,9 @@ bool WindowsPlatform::Init(int argc, char** argv)
 		_window = CreateWindowEx(WS_EX_APPWINDOW, app_name, app_name,
 			WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
 			200, 200, _platform_config->Width, _platform_config->Height,
-			NULL, NULL, _instance, NULL);
+			nullptr, nullptr, _instance, nullptr);
 
-		if (_window == NULL)
+		if (_window == nullptr)
 			return false;
 
 		// hide the window because it's only a temp one
@@ -114,7 +114,7 @@ bool WindowsPlatform::Init(int argc, char** argv)
 
 		// destroy the temp window
 		DestroyWindow(_window);
-		_window = NULL;
+		_window = nullptr;
 		_ignore_window_messages = false;
 	}
 
@@ -136,9 +136,9 @@ bool WindowsPlatform::Init(int argc, char** argv)
 	_window = CreateWindowEx(WS_EX_APPWINDOW, app_name, app_name,
 							WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
 							200, 200, _platform_config->Width, _platform_config->Height,
-							NULL, NULL, _instance, NULL);
+							nullptr, nullptr, _instance, nullptr);
 
-	if (_window == NULL)
+	if (_window == nullptr)
 		return false;
 
 	SetScreenDimensions(_platform_config->Width, _platform_config->Height);
@@ -156,7 +156,7 @@ bool WindowsPlatform::Init(int argc, char** argv)
 void WindowsPlatform::Destroy()
 {
 	if (_platform_config->Fullscreen)
-		ChangeDisplaySettings(NULL, 0);
+		ChangeDisplaySettings(nullptr, 0);
 
 	// delete the rendering system first
 	delete _graphics_renderer;
@@ -183,7 +183,7 @@ void WindowsPlatform::Resize(int width, int height)
 void WindowsPlatform::Update()
 {
 	MSG msg;
-	while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0)
+	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE) > 0)
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);

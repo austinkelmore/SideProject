@@ -8,10 +8,18 @@ void APIENTRY OpenGLDebugFunction(GLenum source, GLenum type, GLuint id, GLenum 
 {
 	UNUSED_VAR(user_param);
 	UNUSED_VAR(length);
-	UNUSED_VAR(id);
+
+	// todo: akelmore - figure out what these OpenGL warnings are and re-enable them
+	switch (id)
+	{
+	case 0x00020071:
+	case 0x0000502:
+		return;
+	default: break;
+	}
 
 	std::string src_name;
-	switch(source)
+	switch (source)
 	{
 	case GL_DEBUG_SOURCE_API_ARB: src_name = "API"; break;
 	case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB: src_name = "Window System"; break;
@@ -22,7 +30,7 @@ void APIENTRY OpenGLDebugFunction(GLenum source, GLenum type, GLuint id, GLenum 
 	}
 
 	std::string error_type;
-	switch(type)
+	switch (type)
 	{
 	case GL_DEBUG_TYPE_ERROR_ARB: error_type = "Error"; break;
 	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB: error_type = "Deprecated Functionality"; break;
@@ -33,23 +41,25 @@ void APIENTRY OpenGLDebugFunction(GLenum source, GLenum type, GLuint id, GLenum 
 	}
 
 	std::string type_severity;
-	switch(severity)
+	switch (severity)
 	{
 	case GL_DEBUG_SEVERITY_HIGH_ARB: type_severity = "High"; break;
 	case GL_DEBUG_SEVERITY_MEDIUM_ARB: type_severity = "Medium"; break;
 	case GL_DEBUG_SEVERITY_LOW_ARB: type_severity = "Low"; break;
+	case GL_DEBUG_SEVERITY_NOTIFICATION: type_severity = "Notification"; break;
+	default: type_severity = "Unknown"; break;
 	}
 
-	g_log->Log(LOG_Graphics, "%s from %s, %s priority Message: %s",
+	g_log->Log(LOG_Graphics, "%s from %s, %s severity: %s",
 		error_type.c_str(), src_name.c_str(), type_severity.c_str(), message);
 }
 
 OpenGLGraphics::OpenGLGraphics()
 {
 #ifdef WIN32
-	_device_context = NULL;
+	_device_context = nullptr;
 #endif // WIN32
-	_rendering_context = NULL;
+	_rendering_context = nullptr;
 
 	_shader_program = 0;
 	_vertex_shader = 0;
@@ -105,7 +115,7 @@ bool OpenGLGraphics::Init()
 	
 #ifdef GL_ARB_debug_output
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
-	_glDebugMessageCallbackARB(OpenGLDebugFunction, NULL);
+	_glDebugMessageCallbackARB(OpenGLDebugFunction, nullptr);
 #endif // GL_ARB_debug_output
 	
 	if (!SetupShaders())
@@ -137,7 +147,7 @@ bool OpenGLGraphics::Init()
 
 	_glGenBuffers(1, &_vertex_buffer);
 	_glBindBuffer(GL_ARRAY_BUFFER, _vertex_buffer);
-	_glBufferData(GL_ARRAY_BUFFER, vertex_count * sizeof(float), &new_vertex_array[0], GL_STATIC_DRAW);
+	_glBufferData(GL_ARRAY_BUFFER, vertex_count * sizeof(float), &new_vertex_array[0], GL_DYNAMIC_DRAW);
 	_glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	_glGenVertexArrays(1, &_vertex_array);
@@ -178,7 +188,7 @@ bool OpenGLGraphics::SetupShaders()
 		int log_size = 0;
 		_glGetShaderiv(_shader_program, GL_INFO_LOG_LENGTH, &log_size);
 		char* log_buffer = new char[log_size];
-		_glGetShaderInfoLog(_shader_program, log_size, NULL, log_buffer);
+		_glGetShaderInfoLog(_shader_program, log_size, nullptr, log_buffer);
 
 		g_log->Log(LOG_Graphics, "Error linking shader program: %s", log_buffer);
 		delete[] log_buffer;
@@ -196,7 +206,7 @@ bool OpenGLGraphics::SetupShaders()
 
 bool OpenGLGraphics::CompileShader(const std::string& shader_path, const GLenum shader_type, unsigned int& o_shader)
 {
-	char* shader_file = NULL;
+	char* shader_file = nullptr;
 	int file_size = 0;
 	GLint shader_status = 0;
 
@@ -226,7 +236,7 @@ bool OpenGLGraphics::CompileShader(const std::string& shader_path, const GLenum 
 		int log_size = 0;
 		_glGetShaderiv(o_shader, GL_INFO_LOG_LENGTH, &log_size);
 		char* log_buffer = new char[log_size];
-		_glGetShaderInfoLog(o_shader, log_size, NULL, log_buffer);
+		_glGetShaderInfoLog(o_shader, log_size, nullptr, log_buffer);
 
 		g_log->Log(LOG_Graphics, "Error Compiling shader %s: %s", shader_path.c_str(), log_buffer);
 		delete[] log_buffer;
@@ -265,7 +275,7 @@ bool OpenGLGraphics::PreInitializeWindowsOpenGL(HWND window)
 		return false;
 
 	// now clean up this temporary window since we've loaded the extensions
-	wglMakeCurrent(NULL, NULL);
+	wglMakeCurrent(nullptr, nullptr);
 	wglDeleteContext(render_context);
 	ReleaseDC(window, device_context);
 
@@ -275,158 +285,52 @@ bool OpenGLGraphics::PreInitializeWindowsOpenGL(HWND window)
 
 bool OpenGLGraphics::LoadExtensions()
 {
+	#define GL_INIT_EXT(var, type, string) \
+		var = (type)wglGetProcAddress(string); \
+		if (!var) { \
+			return false; \
+		}
+
+
 	// Load the OpenGL extensions that this application will be using.
-	_wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
-	if (!_wglChoosePixelFormatARB)
-		return false;
-
-	_wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
-	if (!_wglCreateContextAttribsARB)
-		return false;
-
-	_wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
-	if (!_wglSwapIntervalEXT)
-		return false;
-
-	_glAttachShader = (PFNGLATTACHSHADERPROC)wglGetProcAddress("glAttachShader");
-	if (!_glAttachShader)
-		return false;
-
-	_glBindBuffer = (PFNGLBINDBUFFERPROC)wglGetProcAddress("glBindBuffer");
-	if (!_glBindBuffer)
-		return false;
-
-	_glBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)wglGetProcAddress("glBindVertexArray");
-	if (!_glBindVertexArray)
-		return false;
-
-	_glBufferData = (PFNGLBUFFERDATAPROC)wglGetProcAddress("glBufferData");
-	if (!_glBufferData)
-		return false;
-
-	_glCompileShader = (PFNGLCOMPILESHADERPROC)wglGetProcAddress("glCompileShader");
-	if (!_glCompileShader)
-		return false;
-
-	_glCreateProgram = (PFNGLCREATEPROGRAMPROC)wglGetProcAddress("glCreateProgram");
-	if (!_glCreateProgram)
-		return false;
-
-	_glCreateShader = (PFNGLCREATESHADERPROC)wglGetProcAddress("glCreateShader");
-	if (!_glCreateShader)
-		return false;
-
-	_glDebugMessageCallbackARB = (PFNGLDEBUGMESSAGECALLBACKARBPROC)wglGetProcAddress("glDebugMessageCallbackARB");
-	if (!_glDebugMessageCallbackARB)
-		return false;
-
-	_glDeleteBuffers = (PFNGLDELETEBUFFERSPROC)wglGetProcAddress("glDeleteBuffers");
-	if (!_glDeleteBuffers)
-		return false;
-
-	_glDeleteProgram = (PFNGLDELETEPROGRAMPROC)wglGetProcAddress("glDeleteProgram");
-	if (!_glDeleteProgram)
-		return false;
-
-	_glDeleteShader = (PFNGLDELETESHADERPROC)wglGetProcAddress("glDeleteShader");
-	if (!_glDeleteShader)
-		return false;
-
-	_glDeleteVertexArrays = (PFNGLDELETEVERTEXARRAYSPROC)wglGetProcAddress("glDeleteVertexArrays");
-	if (!_glDeleteVertexArrays)
-		return false;
-
-	_glDetachShader = (PFNGLDETACHSHADERPROC)wglGetProcAddress("glDetachShader");
-	if (!_glDetachShader)
-		return false;
-
-	_glEnableVertexAttribArray = (PFNGLENABLEVERTEXATTRIBARRAYPROC)wglGetProcAddress("glEnableVertexAttribArray");
-	if (!_glEnableVertexAttribArray)
-		return false;
-
-	_glGenBuffers = (PFNGLGENBUFFERSPROC)wglGetProcAddress("glGenBuffers");
-	if (!_glGenBuffers)
-		return false;
-
-	_glGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)wglGetProcAddress("glGenVertexArrays");
-	if (!_glGenVertexArrays)
-		return false;
-
-	_glGetAttribLocation = (PFNGLGETATTRIBLOCATIONPROC)wglGetProcAddress("glGetAttribLocation");
-	if (!_glGetAttribLocation)
-		return false;
-
-	_glGetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC)wglGetProcAddress("glGetProgramInfoLog");
-	if (!_glGetProgramInfoLog)
-		return false;
-
-	_glGetProgramiv = (PFNGLGETPROGRAMIVPROC)wglGetProcAddress("glGetProgramiv");
-	if (!_glGetProgramiv)
-		return false;
-
-	_glGetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC)wglGetProcAddress("glGetShaderInfoLog");
-	if (!_glGetShaderInfoLog)
-		return false;
-
-	_glGetShaderiv = (PFNGLGETSHADERIVPROC)wglGetProcAddress("glGetShaderiv");
-	if (!_glGetShaderiv)
-		return false;
-
-	_glLinkProgram = (PFNGLLINKPROGRAMPROC)wglGetProcAddress("glLinkProgram");
-	if (!_glLinkProgram)
-		return false;
-
-	_glShaderSource = (PFNGLSHADERSOURCEPROC)wglGetProcAddress("glShaderSource");
-	if (!_glShaderSource)
-		return false;
-
-	_glUseProgram = (PFNGLUSEPROGRAMPROC)wglGetProcAddress("glUseProgram");
-	if (!_glUseProgram)
-		return false;
-
-	_glVertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)wglGetProcAddress("glVertexAttribPointer");
-	if (!_glVertexAttribPointer)
-		return false;
-
-	_glBindAttribLocation = (PFNGLBINDATTRIBLOCATIONPROC)wglGetProcAddress("glBindAttribLocation");
-	if (!_glBindAttribLocation)
-		return false;
-
-	_glGetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC)wglGetProcAddress("glGetUniformLocation");
-	if (!_glGetUniformLocation)
-		return false;
-
-	_glUniformMatrix4fv = (PFNGLUNIFORMMATRIX4FVPROC)wglGetProcAddress("glUniformMatrix4fv");
-	if (!_glUniformMatrix4fv)
-		return false;
-
-	_glActiveTexture = (PFNGLACTIVETEXTUREPROC)wglGetProcAddress("glActiveTexture");
-	if (!_glActiveTexture)
-		return false;
-
-	_glUniform1i = (PFNGLUNIFORM1IPROC)wglGetProcAddress("glUniform1i");
-	if (!_glUniform1i)
-		return false;
-
-	_glGenerateMipmap = (PFNGLGENERATEMIPMAPPROC)wglGetProcAddress("glGenerateMipmap");
-	if (!_glGenerateMipmap)
-		return false;
-
-	_glDisableVertexAttribArray = (PFNGLDISABLEVERTEXATTRIBARRAYPROC)wglGetProcAddress("glDisableVertexAttribArray");
-	if (!_glDisableVertexAttribArray)
-		return false;
-
-	_glUniform3fv = (PFNGLUNIFORM3FVPROC)wglGetProcAddress("glUniform3fv");
-	if (!_glUniform3fv)
-		return false;
-
-	_glUniform4fv = (PFNGLUNIFORM4FVPROC)wglGetProcAddress("glUniform4fv");
-	if (!_glUniform4fv)
-		return false;
-
-	_glBufferSubData = (PFNGLBUFFERSUBDATAPROC)wglGetProcAddress("glBufferSubData");
-	if (!_glBufferSubData)
-		return false;
+	GL_INIT_EXT(_wglChoosePixelFormatARB, PFNWGLCHOOSEPIXELFORMATARBPROC, "wglChoosePixelFormatARB");
+	GL_INIT_EXT(_wglCreateContextAttribsARB, PFNWGLCREATECONTEXTATTRIBSARBPROC, "wglCreateContextAttribsARB");
+	GL_INIT_EXT(_wglSwapIntervalEXT, PFNWGLSWAPINTERVALEXTPROC, "wglSwapIntervalEXT");
+	GL_INIT_EXT(_glAttachShader, PFNGLATTACHSHADERPROC, "glAttachShader");
+	GL_INIT_EXT(_glBindBuffer, PFNGLBINDBUFFERPROC, "glBindBuffer");
+	GL_INIT_EXT(_glBindVertexArray, PFNGLBINDVERTEXARRAYPROC, "glBindVertexArray");
+	GL_INIT_EXT(_glBufferData, PFNGLBUFFERDATAPROC, "glBufferData");
+	GL_INIT_EXT(_glCompileShader, PFNGLCOMPILESHADERPROC, "glCompileShader");
+	GL_INIT_EXT(_glCreateProgram, PFNGLCREATEPROGRAMPROC, "glCreateProgram");
+	GL_INIT_EXT(_glCreateShader, PFNGLCREATESHADERPROC, "glCreateShader");
+	GL_INIT_EXT(_glDebugMessageCallbackARB, PFNGLDEBUGMESSAGECALLBACKARBPROC, "glDebugMessageCallbackARB");
+	GL_INIT_EXT(_glDeleteBuffers, PFNGLDELETEBUFFERSPROC, "glDeleteBuffers");
+	GL_INIT_EXT(_glDeleteProgram, PFNGLDELETEPROGRAMPROC, "glDeleteProgram");
+	GL_INIT_EXT(_glDeleteShader, PFNGLDELETESHADERPROC, "glDeleteShader");
+	GL_INIT_EXT(_glDeleteVertexArrays, PFNGLDELETEVERTEXARRAYSPROC, "glDeleteVertexArrays");
+	GL_INIT_EXT(_glDetachShader, PFNGLDETACHSHADERPROC, "glDetachShader");
+	GL_INIT_EXT(_glEnableVertexAttribArray, PFNGLENABLEVERTEXATTRIBARRAYPROC, "glEnableVertexAttribArray");
+	GL_INIT_EXT(_glGenBuffers, PFNGLGENBUFFERSPROC, "glGenBuffers");
+	GL_INIT_EXT(_glGenVertexArrays, PFNGLGENVERTEXARRAYSPROC, "glGenVertexArrays");
+	GL_INIT_EXT(_glGetAttribLocation, PFNGLGETATTRIBLOCATIONPROC, "glGetAttribLocation");
+	GL_INIT_EXT(_glGetProgramInfoLog, PFNGLGETPROGRAMINFOLOGPROC, "glGetProgramInfoLog");
+	GL_INIT_EXT(_glGetProgramiv, PFNGLGETPROGRAMIVPROC, "glGetProgramiv");
+	GL_INIT_EXT(_glGetShaderInfoLog, PFNGLGETSHADERINFOLOGPROC, "glGetShaderInfoLog");
+	GL_INIT_EXT(_glGetShaderiv, PFNGLGETSHADERIVPROC, "glGetShaderiv");
+	GL_INIT_EXT(_glLinkProgram, PFNGLLINKPROGRAMPROC, "glLinkProgram");
+	GL_INIT_EXT(_glShaderSource, PFNGLSHADERSOURCEPROC, "glShaderSource");
+	GL_INIT_EXT(_glUseProgram, PFNGLUSEPROGRAMPROC, "glUseProgram");
+	GL_INIT_EXT(_glVertexAttribPointer, PFNGLVERTEXATTRIBPOINTERPROC, "glVertexAttribPointer");
+	GL_INIT_EXT(_glBindAttribLocation, PFNGLBINDATTRIBLOCATIONPROC, "glBindAttribLocation");
+	GL_INIT_EXT(_glGetUniformLocation, PFNGLGETUNIFORMLOCATIONPROC, "glGetUniformLocation");
+	GL_INIT_EXT(_glUniformMatrix4fv, PFNGLUNIFORMMATRIX4FVPROC, "glUniformMatrix4fv");
+	GL_INIT_EXT(_glActiveTexture, PFNGLACTIVETEXTUREPROC, "glActiveTexture");
+	GL_INIT_EXT(_glUniform1i, PFNGLUNIFORM1IPROC, "glUniform1i");
+	GL_INIT_EXT(_glGenerateMipmap, PFNGLGENERATEMIPMAPPROC, "glGenerateMipmap");
+	GL_INIT_EXT(_glDisableVertexAttribArray, PFNGLDISABLEVERTEXATTRIBARRAYPROC, "glDisableVertexAttribArray");
+	GL_INIT_EXT(_glUniform3fv, PFNGLUNIFORM3FVPROC, "glUniform3fv");
+	GL_INIT_EXT(_glUniform4fv, PFNGLUNIFORM4FVPROC, "glUniform4fv");
+	GL_INIT_EXT(_glBufferSubData, PFNGLBUFFERSUBDATAPROC, "glBufferSubData");
 
 	return true;
 }
@@ -469,7 +373,7 @@ int OpenGLGraphics::ChoosePixelFormat(HDC device_context)
 	int pixel_format;
 	UINT format_count;
 
-	int result = _wglChoosePixelFormatARB(device_context, attribute_list, NULL, 1, &pixel_format, &format_count);
+	int result = _wglChoosePixelFormatARB(device_context, attribute_list, nullptr, 1, &pixel_format, &format_count);
 	if (!result)
 	{
 		DBG_ASSERT_FAIL("Can't find appropriate pixel format.");
@@ -514,7 +418,7 @@ void OpenGLGraphics::Update()
 	//move += 0.00005f;
 	//offset[0] += move;
 	
-	_glUniform4fv(_offset_location, sizeof(offset), &offset[0]);
+	_glUniform4fv(_offset_location, sizeof(offset), offset.v);
 
 	_glBindBuffer(GL_ARRAY_BUFFER, _vertex_array);
 	_glEnableVertexAttribArray(0);
@@ -551,16 +455,16 @@ void OpenGLGraphics::Destroy()
 
 	if (_rendering_context)
 	{
-		wglMakeCurrent(NULL, NULL);
+		wglMakeCurrent(nullptr, nullptr);
 		wglDeleteContext(_rendering_context);
-		_rendering_context = NULL;
+		_rendering_context = nullptr;
 	}
 
 	if (_device_context)
 	{
 		HWND window = static_cast<WindowsPlatform*>(g_platform)->GetWindow();
 		ReleaseDC(window, _device_context);
-		_device_context = NULL;
+		_device_context = nullptr;
 	}
 }
 

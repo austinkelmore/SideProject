@@ -8,13 +8,13 @@
 #include <algorithm>
 #include "BaseConfig.h"
 
-JSONConfigMgr* g_config = NULL;
+JSONConfigMgr* g_config = nullptr;
 
 //using std::ifstream;
 
 JSONConfigMgr::JSONConfigMgr()
 {
-	_folder_change_notification = NULL;
+	_folder_change_notification = nullptr;
 }
 
 JSONConfigMgr::~JSONConfigMgr()
@@ -41,7 +41,7 @@ void JSONConfigMgr::ReadConfigFolder(const std::string &folder_path)
 
 void JSONConfigMgr::ParseConfigs()
 {
-	PrevFileHandle prev_handle = NULL;
+	PrevFileHandle prev_handle = nullptr;
 	std::string file_path;
 
 	do
@@ -53,7 +53,7 @@ void JSONConfigMgr::ParseConfigs()
 
 			_json_files.push_back(file_path);
 
-			char* file_stream = NULL;
+			char* file_stream = nullptr;
 			int file_size;
 			if (LoadFileToBuffer(file_path.c_str(), &file_stream, file_size))
 			{
@@ -75,7 +75,7 @@ void JSONConfigMgr::CheckForConfigFolderChanges()
 		_json_files.clear();
 		ParseConfigs();
 		RefreshConfigValuesFromJSON();
-		DebugPrintJSONConfigs();
+		//DebugPrintJSONConfigs();
 	}
 }
 

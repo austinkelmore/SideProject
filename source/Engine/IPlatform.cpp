@@ -3,7 +3,7 @@
 #include "JSONConfig.h"
 #include <stdlib.h>
 
-IPlatform* g_platform = NULL;
+IPlatform* g_platform = nullptr;
 
 IMPLEMENT_CONFIG(PlatformConfig)
 {
@@ -15,7 +15,7 @@ IMPLEMENT_CONFIG(PlatformConfig)
 
 void Platform::CreateBasePlatformFunctionality()
 {
-	DBG_ASSERT(g_config == NULL);
+	DBG_ASSERT(g_config == nullptr);
 	g_config = new JSONConfigMgr();
 	g_config->ReadConfigFolder("configs");
 }
@@ -25,7 +25,7 @@ void Platform::DestroyBasePlatformFunctionality()
 }
 
 IPlatform::IPlatform()
-	: _exit_framework(false), _window_width(0), _window_height(0), _platform_config(NULL)
+	: _exit_framework(false), _window_width(0), _window_height(0), _platform_config(nullptr)
 {
 	// do nothing
 }
@@ -58,7 +58,7 @@ void IPlatform::Destroy()
 {
 	delete _platform_config;
 	delete g_config;
-	g_config = NULL;
+	g_config = nullptr;
 }
 
 void IPlatform::SetScreenDimensions(const int width, const int height)

@@ -8,7 +8,7 @@ bool LoadFileToBuffer(const char* filename, char** out_data, int &out_size)
 	DBG_ASSERT(out_data);
 
 #ifdef WIN32
-	FILE *file_stream = NULL;
+	FILE *file_stream = nullptr;
 	if (_wfopen_s(&file_stream, nowide::convert(filename).c_str(), L"rb") == 0)
 	{
 		// find out how big the file is
@@ -36,7 +36,7 @@ void DeleteFileBuffer(char** data_buffer)
 	DBG_ASSERT(data_buffer);
 
 	delete[] *data_buffer;
-	*data_buffer = NULL;
+	*data_buffer = nullptr;
 }
 
 bool WatchFolder(const char* folder_path, FolderChangeNotificationHandle &out_handle)
@@ -46,7 +46,7 @@ bool WatchFolder(const char* folder_path, FolderChangeNotificationHandle &out_ha
 	out_handle = FindFirstChangeNotificationW(nowide::convert(folder_path).c_str(), false, flags);
 	if (out_handle == INVALID_HANDLE_VALUE)
 	{
-		out_handle = NULL;
+		out_handle = nullptr;
 		return false;
 	}
 
@@ -95,7 +95,7 @@ std::string FindFileInFolder(const char* folder_path, PrevFileHandle &out_prev_h
 #ifdef WIN32
 	WIN32_FIND_DATA find_file_data;
 
-	if (out_prev_handle == NULL)
+	if (out_prev_handle == nullptr)
 	{
 		// get our first file
 		out_prev_handle = FindFirstFileW(nowide::convert(folder_wildcard).c_str(), &find_file_data);

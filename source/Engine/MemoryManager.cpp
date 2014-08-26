@@ -2,7 +2,7 @@
 #include "MemoryManager.h"
 #include "Logging.h"
 
-MemoryManager* MemoryManager::_memory_manager = NULL;
+MemoryManager* MemoryManager::_memory_manager = nullptr;
 
 namespace
 {
@@ -23,7 +23,7 @@ MemoryManager::~MemoryManager()
 
 void MemoryManager::CreateMemoryManager()
 {
-	DBG_ASSERT(_memory_manager == NULL);
+	DBG_ASSERT(_memory_manager == nullptr);
 
 	static MemoryManager internal_mem_manager;
 	_memory_manager = &internal_mem_manager;

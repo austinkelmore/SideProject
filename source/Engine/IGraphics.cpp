@@ -1,7 +1,7 @@
 
 #include "IGraphics.h"
 
-IGraphics* g_graphics = NULL;
+IGraphics* g_graphics = nullptr;
 
 IGraphics::IGraphics()
 {
@@ -10,5 +10,5 @@ IGraphics::IGraphics()
 
 IGraphics::~IGraphics()
 {
-	g_graphics = NULL;
+	g_graphics = nullptr;
 }

@@ -26,5 +26,5 @@ void DirectXGraphics::Destroy()
 
 GraphicsComponent* DirectXGraphics::CreateGraphicsComponent()
 {
-	return NULL;
+	return nullptr;
 }

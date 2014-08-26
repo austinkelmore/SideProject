@@ -14,7 +14,7 @@ IMPLEMENT_CONFIG(LogConfig)
 	ADD_CONFIG_VAR(bool, Prepend_Group_Name, true);
 }
 
-Logging* g_log = NULL;
+Logging* g_log = nullptr;
 
 Logging::Logging()
 {
@@ -27,7 +27,7 @@ Logging::~Logging()
 {
 	// do nothing
 	delete _log_config;
-	g_log = NULL;
+	g_log = nullptr;
 }
 
 void Logging::Log(LogChannel channel, const char *format, ...)

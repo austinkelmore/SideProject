@@ -74,7 +74,7 @@ public: \
 };
 
 #define IMPLEMENT_CONFIG(class_name) \
-	class_name*	class_name::s_##class_name = NULL; \
+	class_name*	class_name::s_##class_name = nullptr; \
 	BaseConfig* class_name##::New() const \
 	{ \
 		return class_name::StaticNew(); \

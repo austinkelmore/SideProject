@@ -17,8 +17,8 @@ namespace TC
 
 		AssertBehavior ReportFailure(const char* condition, const char* file, int line, const char* msg, ...)
 		{
-			const char* message = NULL;
-			if (msg != NULL)
+			const char* message = nullptr;
+			if (msg != nullptr)
 			{
 				char messageBuffer[1024];
 				{

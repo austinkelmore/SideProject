@@ -21,12 +21,13 @@ int WINAPI WinMain(__in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, _
 
 	// set our current working directory to the one that the exe is in
 	// so that we can access paths correctly rather than where the exe was launched from
+	// todo: akelmore - make sure this works well with shortcuts
 #ifdef WIN32
 	wchar_t szPath[MAX_PATH];
-	::GetModuleFileNameW(NULL, &szPath[0], MAX_PATH);
+	::GetModuleFileNameW(nullptr, &szPath[0], MAX_PATH);
 
 	wchar_t* dir_end = wcsrchr(&szPath[0], '\\');
-	if (dir_end != NULL)
+	if (dir_end != nullptr)
 	{
 		*dir_end = '\0';
 		::SetCurrentDirectoryW(szPath);
